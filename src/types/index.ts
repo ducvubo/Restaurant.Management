@@ -509,3 +509,16 @@ export interface UpdateMaterialCategoryRequest {
     name: string;
     description?: string;
 }
+
+export interface MaterialCategoryListRequest {
+    page?: number;
+    size?: number;
+    keyword?: string;
+}
+
+export interface MaterialCategoryListResponse {
+    items: MaterialCategory[];
+    page: number;
+    size: number;
+    total: number;
+}

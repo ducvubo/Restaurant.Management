@@ -65,6 +65,11 @@ const Layout = () => {
         label: <span className="font-semibold">Kho</span>,
       },
       {
+        key: '/material-categories',
+        icon: <AppstoreOutlined />,
+        label: <span className="font-semibold">Danh Mục NVL</span>,
+      },
+      {
         key: '/materials',
         icon: <GoldOutlined />,
         label: <span className="font-semibold">Nguyên Vật Liệu</span>,
