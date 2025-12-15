@@ -49,5 +49,30 @@ export const API_ENDPOINTS = {
   SUPPLIER_ACTIVATE: '/management/suppliers/activate',
   SUPPLIER_DEACTIVATE: '/management/suppliers/deactivate',
   SUPPLIER_LIST: '/management/suppliers/list',
-} as const;
 
+  // Warehouse Management
+  WAREHOUSE_GET: '/management/warehouses/get',
+  WAREHOUSE_CREATE: '/management/warehouses/create',
+  WAREHOUSE_UPDATE: '/management/warehouses/update',
+  WAREHOUSE_LIST: '/management/warehouses/list',
+  WAREHOUSE_ACTIVATE: '/management/warehouses/activate',
+  WAREHOUSE_DEACTIVATE: '/management/warehouses/deactivate',
+
+  // Material Management
+  MATERIAL_GET: '/management/materials/get',
+  MATERIAL_CREATE: '/management/materials/create',
+  MATERIAL_UPDATE: '/management/materials/update',
+  MATERIAL_LIST: '/management/materials/list',
+  MATERIAL_ACTIVATE: '/management/materials/activate',
+  MATERIAL_DEACTIVATE: '/management/materials/deactivate',
+
+  // Stock Transaction Management
+  STOCK_TRANSACTION_IN: '/management/stock-transactions/in',
+  STOCK_TRANSACTION_OUT: '/management/stock-transactions/out',
+  STOCK_TRANSACTION_GET: '/management/stock-transactions/get',
+  STOCK_TRANSACTION_LIST: '/management/stock-transactions/list',
+
+  // Inventory Ledger Management
+  INVENTORY_LEDGER_GET: '/management/inventory-ledger/get',
+  INVENTORY_LEDGER_CURRENT_STOCK: '/management/inventory-ledger/current-stock',
+} as const;

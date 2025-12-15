@@ -18,6 +18,19 @@ import UpdateUnit from './pages/UpdateUnit';
 import SupplierManagement from './pages/SupplierManagement';
 import AddSupplier from './pages/AddSupplier';
 import UpdateSupplier from './pages/UpdateSupplier';
+import WarehouseManagement from './pages/WarehouseManagement';
+import AddWarehouse from './pages/AddWarehouse';
+import UpdateWarehouse from './pages/UpdateWarehouse';
+import MaterialCategoryManagement from './pages/MaterialCategoryManagement';
+import AddMaterialCategory from './pages/AddMaterialCategory';
+import UpdateMaterialCategory from './pages/UpdateMaterialCategory';
+import MaterialManagement from './pages/MaterialManagement';
+import AddMaterial from './pages/AddMaterial';
+import UpdateMaterial from './pages/UpdateMaterial';
+import StockTransactionManagement from './pages/StockTransactionManagement';
+import StockIn from './pages/StockIn';
+import StockOut from './pages/StockOut';
+import InventoryLedgerManagement from './pages/InventoryLedgerManagement';
 import Login from './pages/Login';
 import { authService } from './services/authService';
 import { setNotificationApi } from './services/notificationService';
@@ -43,14 +56,6 @@ function App() {
             itemSelectedColor: '#2e4baa',
             itemHoverBg: 'rgba(46, 75, 170, 0.05)',
             itemHoverColor: '#2e4baa',
-          },
-          Notification: {
-            width: 320,
-            paddingContent: 12,
-            paddingBlock: 12,
-            paddingInline: 16,
-            marginBottom: 8,
-            borderRadius: 6,
           },
         },
       }}
@@ -97,7 +102,23 @@ function AppContent() {
           <Route path="units/update" element={<UpdateUnit />} />
           <Route path="suppliers" element={<SupplierManagement />} />
           <Route path="suppliers/add" element={<AddSupplier />} />
+          <Route path="suppliers/add" element={<AddSupplier />} />
           <Route path="suppliers/update" element={<UpdateSupplier />} />
+          <Route path="warehouses" element={<WarehouseManagement />} />
+          <Route path="warehouses/add" element={<AddWarehouse />} />
+          <Route path="warehouses/update" element={<UpdateWarehouse />} />
+          
+          <Route path="material-categories" element={<MaterialCategoryManagement />} />
+          <Route path="material-categories/add" element={<AddMaterialCategory />} />
+          <Route path="material-categories/update" element={<UpdateMaterialCategory />} />
+
+          <Route path="materials" element={<MaterialManagement />} />
+          <Route path="materials/add" element={<AddMaterial />} />
+          <Route path="materials/update" element={<UpdateMaterial />} />
+          <Route path="stock-transactions" element={<StockTransactionManagement />} />
+          <Route path="stock-transactions/in" element={<StockIn />} />
+          <Route path="stock-transactions/out" element={<StockOut />} />
+          <Route path="inventory-ledger" element={<InventoryLedgerManagement />} />
         </Route>
       </Routes>
     </BrowserRouter>

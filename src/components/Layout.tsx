@@ -14,6 +14,10 @@ import {
   AppstoreOutlined,
   TeamOutlined,
   InboxOutlined,
+  BankOutlined,
+  GoldOutlined,
+  SwapOutlined,
+  ReadOutlined,
 } from '@ant-design/icons';
 
 const { Header, Sider, Content, Footer } = AntLayout;
@@ -56,15 +60,35 @@ const Layout = () => {
       label: <span className="font-semibold">Quản Lý Kho</span>,
       children: [
         {
-          key: '/units',
-          icon: <AppstoreOutlined />,
-          label: <span className="font-semibold">Đơn Vị Tính</span>,
-        },
-        {
-          key: '/suppliers',
-          icon: <TeamOutlined />,
-          label: <span className="font-semibold">Nhà Cung Cấp</span>,
-        },
+        key: '/warehouses',
+        icon: <BankOutlined />,
+        label: <span className="font-semibold">Kho</span>,
+      },
+      {
+        key: '/materials',
+        icon: <GoldOutlined />,
+        label: <span className="font-semibold">Nguyên Vật Liệu</span>,
+      },
+      {
+        key: '/stock-transactions',
+        icon: <SwapOutlined />,
+        label: <span className="font-semibold">Nhập/Xuất Kho</span>,
+      },
+      {
+        key: '/inventory-ledger',
+        icon: <ReadOutlined />,
+        label: <span className="font-semibold">Sổ Cái Tồn Kho</span>,
+      },
+      {
+        key: '/units',
+        icon: <AppstoreOutlined />,
+        label: <span className="font-semibold">Đơn Vị Tính</span>,
+      },
+      {
+        key: '/suppliers',
+        icon: <TeamOutlined />,
+        label: <span className="font-semibold">Nhà Cung Cấp</span>,
+      },
       ],
     },
   ];
@@ -109,7 +133,7 @@ const Layout = () => {
         />
       </Sider>
       <AntLayout style={{ marginLeft: collapsed ? 80 : 250, transition: 'margin-left 0.2s' }}>
-        <Header className="flex items-center justify-between" style={{ backgroundColor: '#2e4baa', color: '#ffffff', height: '55px', lineHeight: '48px', padding: '0 24px' }}>
+        <Header className="flex items-center justify-between sticky top-0 z-50" style={{ backgroundColor: '#2e4baa', color: '#ffffff', height: '55px', lineHeight: '48px', padding: '0 24px' }}>
           <Space>
             <Button
               type="text"
@@ -128,10 +152,10 @@ const Layout = () => {
             </Dropdown>
           )}
         </Header>
-        <Content className="p-2 bg-white" style={{ minHeight: 'calc(100vh - 103px)' }}>
+       <Content className="p-2 bg-white" style={{ minHeight: 'calc(100vh - 103px)' }}>
           <Outlet />
         </Content>
-        <Footer style={{ textAlign: 'center', backgroundColor: '#ffffff', borderTop: '1px solid #e5e7eb', padding: '10px 20px' }}>
+        <Footer style={{  textAlign: 'center', backgroundColor: '#ffffff', borderTop: '1px solid #e5e7eb', padding: '10px 20px', position: 'sticky', bottom: 0, zIndex: 100 }}>
           © 2025 - Hệ thống quản lý nhà hàng
         </Footer>
       </AntLayout>

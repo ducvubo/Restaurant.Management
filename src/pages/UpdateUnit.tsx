@@ -17,36 +17,44 @@ const UpdateUnit = () => {
 
   useEffect(() => {
     if (unitId) {
-      loadUnit();
-      loadBaseUnits();
+      loadData();
     }
   }, [unitId]);
 
-  const loadUnit = async () => {
+  const loadData = async () => {
     try {
       setFetching(true);
-      const unit = await unitService.getUnitById(unitId!);
+      const [unit, units] = await Promise.all([
+        unitService.getUnitById(unitId!),
+        unitService.getBaseUnits()
+      ]);
+
+      // Filter out current unit from base units to avoid self-reference
+      const filteredBaseUnits = units.filter(u => u.id !== unitId);
+      setBaseUnits(filteredBaseUnits);
+
+      // Check if current baseUnitId exists in the filtered list
+      // If not exists (and is not null), set it to null to show placeholder instead of ID
+      let validBaseUnitId = unit.baseUnitId;
+      if (validBaseUnitId) {
+        const baseUnitExists = filteredBaseUnits.some(u => u.id === validBaseUnitId);
+        if (!baseUnitExists) {
+          validBaseUnitId = undefined; // Set to undefined to clear the field (showing placeholder)
+        }
+      }
+
       form.setFieldsValue({
         code: unit.code,
         name: unit.name,
         symbol: unit.symbol,
-        baseUnitId: unit.baseUnitId,
+        baseUnitId: validBaseUnitId, // Use the validated ID
         conversionRate: unit.conversionRate,
         description: unit.description,
       });
     } catch (error) {
-      console.error('Error loading unit:', error);
+      console.error('Error loading data:', error);
     } finally {
       setFetching(false);
-    }
-  };
-
-  const loadBaseUnits = async () => {
-    try {
-      const units = await unitService.getBaseUnits();
-      setBaseUnits(units);
-    } catch (error) {
-      console.error('Error loading base units:', error);
     }
   };
 
