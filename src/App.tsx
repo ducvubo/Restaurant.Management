@@ -4,6 +4,11 @@ import { useEffect } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import UserManagement from './pages/UserManagement';
+import AddUser from './pages/AddUser';
+import UpdateUser from './pages/UpdateUser';
+import PolicyManagement from './pages/PolicyManagement';
+import AddPolicy from './pages/AddPolicy';
+import UpdatePolicy from './pages/UpdatePolicy';
 import Login from './pages/Login';
 import { authService } from './services/authService';
 import { setNotificationApi } from './services/notificationService';
@@ -70,6 +75,11 @@ function AppContent() {
         >
           <Route index element={<Dashboard />} />
           <Route path="users" element={<UserManagement />} />
+          <Route path="users/add" element={<AddUser />} />
+          <Route path="users/update" element={<UpdateUser />} />
+          <Route path="policies" element={<PolicyManagement />} />
+          <Route path="policies/add" element={<AddPolicy />} />
+          <Route path="policies/update" element={<UpdatePolicy />} />
         </Route>
       </Routes>
     </BrowserRouter>

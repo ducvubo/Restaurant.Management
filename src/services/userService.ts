@@ -5,37 +5,57 @@ import type { User, CreateUserRequest, UpdateUserRequest, ResultMessage } from '
 export const userService = {
   // Get all users
   getAllUsers: async (): Promise<User[]> => {
-    const response = await Api.get<ResultMessage<User[]>>(API_ENDPOINTS.USERS);
+    const response = await Api.get<ResultMessage<User[]>>(API_ENDPOINTS.USERS + '/list');
     return response.data.result || [];
   },
 
   // Get user by ID
   getUserById: async (id: string): Promise<User> => {
-    const response = await Api.get<ResultMessage<User>>(API_ENDPOINTS.USER_BY_ID(id));
+    const response = await Api.get<ResultMessage<User>>(API_ENDPOINTS.USER_GET, {
+      params: { id },
+    });
     return response.data.result;
   },
 
   // Get user by username
   getUserByUsername: async (username: string): Promise<User> => {
-    const response = await Api.get<ResultMessage<User>>(API_ENDPOINTS.USER_BY_USERNAME(username));
+    const response = await Api.get<ResultMessage<User>>(API_ENDPOINTS.USER_GET_BY_USERNAME, {
+      params: { username },
+    });
     return response.data.result;
   },
 
   // Create user
-  createUser: async (userData: CreateUserRequest): Promise<User> => {
-    const response = await Api.post<ResultMessage<User>>(API_ENDPOINTS.USERS, userData);
-    return response.data.result;
+  createUser: async (userData: CreateUserRequest): Promise<ResultMessage<User>> => {
+    const response = await Api.post<ResultMessage<User>>(API_ENDPOINTS.USER_ADD, userData);
+    return response.data;
   },
 
   // Update user
-  updateUser: async (id: string, userData: UpdateUserRequest): Promise<User> => {
-    const response = await Api.put<ResultMessage<User>>(API_ENDPOINTS.USER_BY_ID(id), userData);
+  updateUser: async (id: string, userData: UpdateUserRequest): Promise<ResultMessage<User>> => {
+    const response = await Api.put<ResultMessage<User>>(API_ENDPOINTS.USER_UPDATE, {
+      ...userData,
+      id,
+    });
+    return response.data;
+  },
+
+  // Disable user
+  disableUser: async (id: string): Promise<User> => {
+    const response = await Api.put<ResultMessage<User>>(
+      `${API_ENDPOINTS.USER_DISABLE}?id=${id}`,
+      {}
+    );
     return response.data.result;
   },
 
-  // Delete user
-  deleteUser: async (id: string): Promise<void> => {
-    await Api.delete(API_ENDPOINTS.USER_BY_ID(id));
+  // Enable user
+  enableUser: async (id: string): Promise<User> => {
+    const response = await Api.put<ResultMessage<User>>(
+      `${API_ENDPOINTS.USER_ENABLE}?id=${id}`,
+      {}
+    );
+    return response.data.result;
   },
 };
 

@@ -15,14 +15,14 @@ export interface User {
   fullName?: string;
   phone?: string;
   address?: string;
-  isActive: boolean;
+  policyIds?: string[]; // policy ids assigned to user
   createdBy?: string; // UUID
   updatedBy?: string; // UUID
   deletedBy?: string; // UUID
   createdDate: string;
   updatedDate: string;
   deletedDate?: string;
-  status: 'Active' | 'Inactive' | 'Deleted';
+  status: number; // DataStatus: 1 = ACTIVE, 0 = INACTIVE, -1 = DELETED
 }
 
 export interface CreateUserRequest {
@@ -32,13 +32,60 @@ export interface CreateUserRequest {
   fullName?: string;
   phone?: string;
   address?: string;
+  policyIds?: string[]; // policy ids assigned to user
 }
 
 export interface UpdateUserRequest {
+  id?: string; // UUID - required for update
   email?: string;
   fullName?: string;
   phone?: string;
   address?: string;
-  isActive?: boolean;
+  policyIds?: string[]; // policy ids assigned to user
+  status?: number; // DataStatus: 1 = ACTIVE, 0 = INACTIVE, -1 = DELETED
+}
+
+// Policy types
+export interface Policy {
+  id: string; // UUID
+  name: string;
+  description?: string;
+  policies: string[]; // List of permission keys
+  status: number; // DataStatus: 1 = ACTIVE, 0 = INACTIVE, -1 = DELETED
+  createdBy?: string; // UUID
+  updatedBy?: string; // UUID
+  deletedBy?: string; // UUID
+  createdDate: string;
+  updatedDate: string;
+  deletedDate?: string;
+}
+
+export interface CreatePolicyRequest {
+  name: string;
+  description?: string;
+  policies: string[]; // List of permission keys
+  status?: number; // DataStatus: 1 = ACTIVE, 0 = INACTIVE, -1 = DELETED
+}
+
+export interface UpdatePolicyRequest {
+  id?: string; // UUID - required for update
+  name?: string;
+  description?: string;
+  policies?: string[]; // List of permission keys
+  status?: number; // DataStatus: 1 = ACTIVE, 0 = INACTIVE, -1 = DELETED
+}
+
+export interface PolicyListRequest {
+  page?: number; // Backend uses 1-based page
+  size?: number;
+  keyword?: string; // Backend uses keyword instead of search
+  status?: number; // DataStatus: 1 = ACTIVE, 0 = INACTIVE, -1 = DELETED
+}
+
+export interface PolicyListResponse {
+  items: Policy[]; // Backend uses items instead of data
+  page: number;
+  size: number;
+  total: number;
 }
 

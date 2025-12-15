@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Space, Tag, message, Card } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { Table, Button, Space, Tag, Card, Modal, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { ReloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { ReloadOutlined, EditOutlined, StopOutlined, CheckCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { userService } from '../services/userService';
 import type { User } from '../types';
 
 const UserManagement = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -19,107 +21,166 @@ const UserManagement = () => {
       const data = await userService.getAllUsers();
       setUsers(data);
     } catch (err) {
-      message.error(err instanceof Error ? err.message : 'Không thể tải danh sách người dùng');
+      // Error đã được xử lý bởi baseHttp interceptor
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEdit = (user: User) => {
-    message.info(`Chỉnh sửa người dùng: ${user.username}`);
-    // TODO: Implement edit functionality
+  const handleCreate = () => {
+    navigate('/users/add');
   };
 
-  const handleDelete = async (user: User) => {
-    try {
-      await userService.deleteUser(user.id);
-      message.success('Xóa người dùng thành công');
-      loadUsers();
-    } catch (err) {
-      message.error(err instanceof Error ? err.message : 'Không thể xóa người dùng');
-    }
+  const handleEdit = (user: User) => {
+    navigate(`/users/update?id=${user.id}`);
+  };
+
+  const handleDisable = (user: User) => {
+    Modal.confirm({
+      title: 'Vô Hiệu Hóa Người Dùng',
+      content: `Bạn có chắc chắn muốn vô hiệu hóa người dùng "${user.username}"?`,
+      okText: 'Xác Nhận',
+      cancelText: 'Hủy',
+      onOk: async () => {
+        try {
+          await userService.disableUser(user.id);
+          loadUsers();
+        } catch (err) {
+          // Error đã được xử lý bởi baseHttp interceptor
+        }
+      },
+    });
+  };
+
+  const handleEnable = (user: User) => {
+    Modal.confirm({
+      title: 'Kích Hoạt Người Dùng',
+      content: `Bạn có chắc chắn muốn kích hoạt lại người dùng "${user.username}"?`,
+      okText: 'Xác Nhận',
+      cancelText: 'Hủy',
+      onOk: async () => {
+        try {
+          await userService.enableUser(user.id);
+          loadUsers();
+        } catch (err) {
+          // Error đã được xử lý bởi baseHttp interceptor
+        }
+      },
+    });
   };
 
   const columns: ColumnsType<User> = [
     {
-      title: 'Mã',
-      dataIndex: 'id',
-      key: 'id',
-      width: 100,
-    },
-    {
       title: 'Tên Đăng Nhập',
       dataIndex: 'username',
       key: 'username',
+      width: 150,
     },
     {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
+      width: 200,
     },
     {
       title: 'Họ Tên',
       dataIndex: 'fullName',
       key: 'fullName',
+      width: 150,
       render: (text) => text || '-',
     },
     {
       title: 'Số Điện Thoại',
       dataIndex: 'phone',
       key: 'phone',
+      width: 120,
       render: (text) => text || '-',
     },
     {
+      title: 'Địa Chỉ',
+      dataIndex: 'address',
+      key: 'address',
+      width: 200,
+      render: (text) => text || '-',
+      ellipsis: true,
+    },
+    {
       title: 'Trạng Thái',
-      dataIndex: 'isActive',
-      key: 'isActive',
-      render: (isActive: boolean) => (
-        <Tag color={isActive ? 'green' : 'red'}>
-          {isActive ? 'Hoạt Động' : 'Không Hoạt Động'}
-        </Tag>
-      ),
+      dataIndex: 'status',
+      key: 'status',
+      width: 120,
+      render: (status: number) => {
+        // DataStatus: 1 = ACTIVE, 0 = INACTIVE, -1 = DELETED
+        if (status === 1) {
+          return <Tag color="green">Hoạt Động</Tag>;
+        } else if (status === 0) {
+          return <Tag color="red">Không Hoạt Động</Tag>;
+        } else {
+          return <Tag color="default">Đã Xóa</Tag>;
+        }
+      },
     },
     {
       title: 'Thao Tác',
       key: 'actions',
-      width: 150,
+      width: 120,
+      fixed: 'right',
       render: (_, record) => (
         <Space>
-          <Button
-            type="primary"
-            icon={<EditOutlined />}
-            size="small"
-            onClick={() => handleEdit(record)}
-          >
-            Sửa
-          </Button>
-          <Button
-            type="primary"
-            danger
-            icon={<DeleteOutlined />}
-            size="small"
-            onClick={() => handleDelete(record)}
-          >
-            Xóa
-          </Button>
+          <Tooltip title="Chỉnh Sửa">
+            <Button
+              type="primary"
+              icon={<EditOutlined />}
+              size="small"
+              onClick={() => handleEdit(record)}
+            />
+          </Tooltip>
+          {record.status === 1 ? (
+            <Tooltip title="Vô Hiệu Hóa">
+              <Button
+                type="primary"
+                danger
+                icon={<StopOutlined />}
+                size="small"
+                onClick={() => handleDisable(record)}
+              />
+            </Tooltip>
+          ) : (
+            <Tooltip title="Kích Hoạt">
+              <Button
+                type="primary"
+                icon={<CheckCircleOutlined />}
+                size="small"
+                onClick={() => handleEnable(record)}
+              />
+            </Tooltip>
+          )}
         </Space>
       ),
     },
   ];
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold m-0">Quản Lý Người Dùng</h1>
-          <Button
-            type="primary"
-            icon={<ReloadOutlined />}
-            onClick={loadUsers}
-            loading={loading}
-          >
-            Làm Mới
-          </Button>
+    <div>
+      <Card bodyStyle={{ padding: '16px' }}>
+        <div className="flex justify-between items-center mb-2">
+          <h1 className="text-xl font-bold m-0">Quản Lý Người Dùng</h1>
+          <Space>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleCreate}
+            >
+              Tạo Người Dùng
+            </Button>
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={loadUsers}
+              loading={loading}
+            >
+              Làm Mới
+            </Button>
+          </Space>
         </div>
 
         <Table
@@ -127,6 +188,7 @@ const UserManagement = () => {
           dataSource={users}
           rowKey="id"
           loading={loading}
+          scroll={{ x: 1200 }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
