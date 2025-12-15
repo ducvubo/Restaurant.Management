@@ -11,6 +11,9 @@ import {
   MenuUnfoldOutlined,
   SafetyOutlined,
   ShopOutlined,
+  AppstoreOutlined,
+  TeamOutlined,
+  InboxOutlined,
 } from '@ant-design/icons';
 
 const { Header, Sider, Content, Footer } = AntLayout;
@@ -47,6 +50,23 @@ const Layout = () => {
       icon: <ShopOutlined />,
       label: <span className="font-semibold">Quản Lý Chi Nhánh</span>,
     },
+    {
+      key: 'warehouse',
+      icon: <InboxOutlined />,
+      label: <span className="font-semibold">Quản Lý Kho</span>,
+      children: [
+        {
+          key: '/units',
+          icon: <AppstoreOutlined />,
+          label: <span className="font-semibold">Đơn Vị Tính</span>,
+        },
+        {
+          key: '/suppliers',
+          icon: <TeamOutlined />,
+          label: <span className="font-semibold">Nhà Cung Cấp</span>,
+        },
+      ],
+    },
   ];
 
   const userMenuItems: MenuProps['items'] = [
@@ -66,7 +86,13 @@ const Layout = () => {
         collapsed={collapsed}
         collapsible
         trigger={null}
-        style={{ backgroundColor: '#ffffff' }}
+        style={{ 
+          backgroundColor: '#ffffff',
+          overflow: 'auto',
+          height: '100vh',
+          position: 'fixed',
+          left: 0,
+        }}
         theme="light"
       >
         <div className="h-[55px] flex items-center justify-center" style={{ backgroundColor: '#2e4baa', borderColor: '#e5e7eb' }}>
@@ -79,9 +105,10 @@ const Layout = () => {
           items={menuItems}
           onClick={({ key }) => navigate(key)}
           className="border-r-0"
+          style={{ borderRight: 0 }}
         />
       </Sider>
-      <AntLayout>
+      <AntLayout style={{ marginLeft: collapsed ? 80 : 250, transition: 'margin-left 0.2s' }}>
         <Header className="flex items-center justify-between" style={{ backgroundColor: '#2e4baa', color: '#ffffff', height: '55px', lineHeight: '48px', padding: '0 24px' }}>
           <Space>
             <Button

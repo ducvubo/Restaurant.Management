@@ -142,3 +142,11 @@ code {
 .ant-menu {
   height: calc(100vh - 55px) !important;
 }
+
+/* Hide scrollbar in menu and submenu */
+.ant-menu,
+.ant-menu-sub,
+.ant-menu-inline {
+  overflow-y: hidden !important;
+  overflow-x: hidden !important;
+}

@@ -32,5 +32,22 @@ export const API_ENDPOINTS = {
   BRANCH_ACTIVATE: '/management/branches/activate',
   BRANCH_DEACTIVATE: '/management/branches/deactivate',
   BRANCH_LIST: '/management/branches/list',
+  // Unit Management
+  UNIT_GET: '/management/units/get',
+  UNIT_GET_ALL: '/management/units/get-all',
+  UNIT_BASE_UNITS: '/management/units/base-units',
+  UNIT_CREATE: '/management/units/create',
+  UNIT_UPDATE: '/management/units/update',
+  UNIT_ACTIVATE: '/management/units/activate',
+  UNIT_DEACTIVATE: '/management/units/deactivate',
+  UNIT_LIST: '/management/units/list',
+  // Supplier Management
+  SUPPLIER_GET: '/management/suppliers/get',
+  SUPPLIER_GET_ALL: '/management/suppliers/get-all',
+  SUPPLIER_CREATE: '/management/suppliers/create',
+  SUPPLIER_UPDATE: '/management/suppliers/update',
+  SUPPLIER_ACTIVATE: '/management/suppliers/activate',
+  SUPPLIER_DEACTIVATE: '/management/suppliers/deactivate',
+  SUPPLIER_LIST: '/management/suppliers/list',
 } as const;
 

@@ -143,6 +143,7 @@ export interface UpdateBranchRequest {
   status?: number; // DataStatus: 1 = ACTIVE, 0 = INACTIVE
 }
 
+
 export interface BranchListRequest {
   keyword?: string;
   status?: number; // DataStatus: 1 = ACTIVE, 0 = INACTIVE
@@ -152,6 +153,117 @@ export interface BranchListRequest {
 
 export interface BranchListResponse {
   items: Branch[];
+  page: number;
+  size: number;
+  total: number;
+}
+
+// Unit types
+export interface Unit {
+  id: string; // UUID
+  code: string;
+  name: string;
+  symbol?: string;
+  baseUnitId?: string; // UUID
+  baseUnitName?: string;
+  conversionRate?: number;
+  description?: string;
+  status: number;
+  createdBy?: string;
+  updatedBy?: string;
+  createdDate: string;
+  updatedDate: string;
+}
+
+export interface CreateUnitRequest {
+  code: string;
+  name: string;
+  symbol?: string;
+  baseUnitId?: string;
+  conversionRate?: number;
+  description?: string;
+}
+
+export interface UpdateUnitRequest {
+  id?: string;
+  code: string;
+  name: string;
+  symbol?: string;
+  baseUnitId?: string;
+  conversionRate?: number;
+  description?: string;
+}
+
+export interface UnitListRequest {
+  keyword?: string;
+  status?: number;
+  page?: number;
+  size?: number;
+}
+
+export interface UnitListResponse {
+  items: Unit[];
+  page: number;
+  size: number;
+  total: number;
+}
+
+// Supplier types
+export interface Supplier {
+  id: string; // UUID
+  code: string;
+  name: string;
+  contactPerson?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  taxCode?: string;
+  paymentTerms?: string;
+  rating?: number; // 1-5
+  notes?: string;
+  status: number;
+  createdBy?: string;
+  updatedBy?: string;
+  createdDate: string;
+  updatedDate: string;
+}
+
+export interface CreateSupplierRequest {
+  code: string;
+  name: string;
+  contactPerson?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  taxCode?: string;
+  paymentTerms?: string;
+  rating?: number;
+  notes?: string;
+}
+
+export interface UpdateSupplierRequest {
+  id?: string;
+  code: string;
+  name: string;
+  contactPerson?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  taxCode?: string;
+  paymentTerms?: string;
+  rating?: number;
+  notes?: string;
+}
+
+export interface SupplierListRequest {
+  keyword?: string;
+  status?: number;
+  page?: number;
+  size?: number;
+}
+
+export interface SupplierListResponse {
+  items: Supplier[];
   page: number;
   size: number;
   total: number;

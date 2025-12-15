@@ -12,6 +12,12 @@ import UpdatePolicy from './pages/UpdatePolicy';
 import BranchManagement from './pages/BranchManagement';
 import AddBranch from './pages/AddBranch';
 import UpdateBranch from './pages/UpdateBranch';
+import UnitManagement from './pages/UnitManagement';
+import AddUnit from './pages/AddUnit';
+import UpdateUnit from './pages/UpdateUnit';
+import SupplierManagement from './pages/SupplierManagement';
+import AddSupplier from './pages/AddSupplier';
+import UpdateSupplier from './pages/UpdateSupplier';
 import Login from './pages/Login';
 import { authService } from './services/authService';
 import { setNotificationApi } from './services/notificationService';
@@ -86,6 +92,12 @@ function AppContent() {
           <Route path="branches" element={<BranchManagement />} />
           <Route path="branches/add" element={<AddBranch />} />
           <Route path="branches/update" element={<UpdateBranch />} />
+          <Route path="units" element={<UnitManagement />} />
+          <Route path="units/add" element={<AddUnit />} />
+          <Route path="units/update" element={<UpdateUnit />} />
+          <Route path="suppliers" element={<SupplierManagement />} />
+          <Route path="suppliers/add" element={<AddSupplier />} />
+          <Route path="suppliers/update" element={<UpdateSupplier />} />
         </Route>
       </Routes>
     </BrowserRouter>
