@@ -9,6 +9,9 @@ import UpdateUser from './pages/UpdateUser';
 import PolicyManagement from './pages/PolicyManagement';
 import AddPolicy from './pages/AddPolicy';
 import UpdatePolicy from './pages/UpdatePolicy';
+import BranchManagement from './pages/BranchManagement';
+import AddBranch from './pages/AddBranch';
+import UpdateBranch from './pages/UpdateBranch';
 import Login from './pages/Login';
 import { authService } from './services/authService';
 import { setNotificationApi } from './services/notificationService';
@@ -80,6 +83,9 @@ function AppContent() {
           <Route path="policies" element={<PolicyManagement />} />
           <Route path="policies/add" element={<AddPolicy />} />
           <Route path="policies/update" element={<UpdatePolicy />} />
+          <Route path="branches" element={<BranchManagement />} />
+          <Route path="branches/add" element={<AddBranch />} />
+          <Route path="branches/update" element={<UpdateBranch />} />
         </Route>
       </Routes>
     </BrowserRouter>

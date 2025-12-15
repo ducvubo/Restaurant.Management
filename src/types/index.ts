@@ -45,6 +45,20 @@ export interface UpdateUserRequest {
   status?: number; // DataStatus: 1 = ACTIVE, 0 = INACTIVE, -1 = DELETED
 }
 
+export interface UserListRequest {
+  keyword?: string;
+  status?: number; // DataStatus: 1 = ACTIVE, 0 = INACTIVE, -1 = DELETED
+  page?: number;
+  size?: number;
+}
+
+export interface UserListResponse {
+  items: User[];
+  page: number;
+  size: number;
+  total: number;
+}
+
 // Policy types
 export interface Policy {
   id: string; // UUID
@@ -89,3 +103,56 @@ export interface PolicyListResponse {
   total: number;
 }
 
+// Branch types
+export interface Branch {
+  id: string; // UUID
+  code: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  openingTime: string; // LocalTime format: "HH:mm:ss"
+  closingTime: string; // LocalTime format: "HH:mm:ss"
+  status: number; // DataStatus: 1 = ACTIVE, 0 = INACTIVE
+  createdBy?: string; // UUID
+  updatedBy?: string; // UUID
+  createdDate: string;
+  updatedDate: string;
+}
+
+export interface CreateBranchRequest {
+  code: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  openingTime: string; // LocalTime format: "HH:mm:ss"
+  closingTime: string; // LocalTime format: "HH:mm:ss"
+  status?: number; // DataStatus: 1 = ACTIVE, 0 = INACTIVE
+}
+
+export interface UpdateBranchRequest {
+  id?: string; // UUID - required for update
+  code?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  openingTime?: string; // LocalTime format: "HH:mm:ss"
+  closingTime?: string; // LocalTime format: "HH:mm:ss"
+  status?: number; // DataStatus: 1 = ACTIVE, 0 = INACTIVE
+}
+
+export interface BranchListRequest {
+  keyword?: string;
+  status?: number; // DataStatus: 1 = ACTIVE, 0 = INACTIVE
+  page?: number;
+  size?: number;
+}
+
+export interface BranchListResponse {
+  items: Branch[];
+  page: number;
+  size: number;
+  total: number;
+}

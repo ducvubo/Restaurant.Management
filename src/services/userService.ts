@@ -1,12 +1,20 @@
 import Api from './baseHttp';
 import { API_ENDPOINTS } from '../config/api';
-import type { User, CreateUserRequest, UpdateUserRequest, ResultMessage } from '../types';
+import type { User, CreateUserRequest, UpdateUserRequest, UserListRequest, UserListResponse, ResultMessage } from '../types';
 
 export const userService = {
   // Get all users
   getAllUsers: async (): Promise<User[]> => {
-    const response = await Api.get<ResultMessage<User[]>>(API_ENDPOINTS.USERS + '/list');
+    const response = await Api.get<ResultMessage<User[]>>(API_ENDPOINTS.USERS + '/get-all');
     return response.data.result || [];
+  },
+
+  // Get user list (with pagination and search)
+  getUserList: async (request: UserListRequest): Promise<UserListResponse> => {
+    const response = await Api.get<ResultMessage<UserListResponse>>(API_ENDPOINTS.USER_LIST, {
+      params: request,
+    });
+    return response.data.result;
   },
 
   // Get user by ID

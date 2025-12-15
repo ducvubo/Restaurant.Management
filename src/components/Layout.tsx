@@ -10,6 +10,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   SafetyOutlined,
+  ShopOutlined,
 } from '@ant-design/icons';
 
 const { Header, Sider, Content, Footer } = AntLayout;
@@ -40,6 +41,11 @@ const Layout = () => {
       key: '/policies',
       icon: <SafetyOutlined />,
       label: <span className="font-semibold">Quản Lý Tập Quyền</span>,
+    },
+    {
+      key: '/branches',
+      icon: <ShopOutlined />,
+      label: <span className="font-semibold">Quản Lý Chi Nhánh</span>,
     },
   ];
 

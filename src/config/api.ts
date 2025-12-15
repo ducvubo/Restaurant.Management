@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
   USER_UPDATE: '/management/users/update',
   USER_DISABLE: '/management/users/disable',
   USER_ENABLE: '/management/users/enable',
+  USER_LIST: '/management/users/list',
   // Policy Management
   POLICY_GET: '/management/policy/get',
   POLICY_ADD: '/management/policy/add',
@@ -22,5 +23,14 @@ export const API_ENDPOINTS = {
   POLICY_ALL: '/management/policy/all',
   // Permission
   PERMISSION_LIST: '/management/permission/list',
+  // Branch Management
+  BRANCH_GET: '/management/branches/get',
+  BRANCH_GET_ALL: '/management/branches/get-all',
+  BRANCH_GET_ALL_ACTIVE: '/management/branches/get-all-active',
+  BRANCH_CREATE: '/management/branches/create',
+  BRANCH_UPDATE: '/management/branches/update',
+  BRANCH_ACTIVATE: '/management/branches/activate',
+  BRANCH_DEACTIVATE: '/management/branches/deactivate',
+  BRANCH_LIST: '/management/branches/list',
 } as const;
 

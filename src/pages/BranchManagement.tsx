@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Table, Button, Space, Tag, Card, Modal, Tooltip, Input, Select } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { ReloadOutlined, EditOutlined, StopOutlined, CheckCircleOutlined, PlusOutlined, SearchOutlined, FilterOutlined } from '@ant-design/icons';
-import { userService } from '../services/userService';
-import type { User, UserListRequest } from '../types';
+import { branchService } from '../services/branchService';
+import type { Branch, BranchListRequest } from '../types';
 
 const { Search } = Input;
 
-const UserManagement = () => {
+const BranchManagement = () => {
   const navigate = useNavigate();
-  const [users, setUsers] = useState<User[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,20 +20,20 @@ const UserManagement = () => {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
 
   useEffect(() => {
-    loadUsers();
+    loadBranches();
   }, [currentPage, pageSize, statusFilter]);
 
-  const loadUsers = async () => {
+  const loadBranches = async () => {
     try {
       setLoading(true);
-      const request: UserListRequest = {
+      const request: BranchListRequest = {
         keyword: keyword || undefined,
         status: statusFilter,
         page: currentPage,
         size: pageSize,
       };
-      const data = await userService.getUserList(request);
-      setUsers(data.items);
+      const data = await branchService.getBranchList(request);
+      setBranches(data.items);
       setTotal(data.total);
     } catch (err) {
       // Error đã được xử lý bởi baseHttp interceptor
@@ -46,15 +46,15 @@ const UserManagement = () => {
     setKeyword(value);
     setCurrentPage(1); // Reset to first page when searching
     // Trigger load with new keyword
-    const request: UserListRequest = {
+    const request: BranchListRequest = {
       keyword: value || undefined,
       status: statusFilter,
       page: 1,
       size: pageSize,
     };
     setLoading(true);
-    userService.getUserList(request).then(data => {
-      setUsers(data.items);
+    branchService.getBranchList(request).then(data => {
+      setBranches(data.items);
       setTotal(data.total);
       setLoading(false);
     }).catch(() => setLoading(false));
@@ -66,23 +66,23 @@ const UserManagement = () => {
   };
 
   const handleCreate = () => {
-    navigate('/users/add');
+    navigate('/branches/add');
   };
 
-  const handleEdit = (user: User) => {
-    navigate(`/users/update?id=${user.id}`);
+  const handleEdit = (branch: Branch) => {
+    navigate(`/branches/update?id=${branch.id}`);
   };
 
-  const handleDisable = (user: User) => {
+  const handleDeactivate = (branch: Branch) => {
     Modal.confirm({
-      title: 'Vô Hiệu Hóa Người Dùng',
-      content: `Bạn có chắc chắn muốn vô hiệu hóa người dùng "${user.username}"?`,
+      title: 'Vô Hiệu Hóa Chi Nhánh',
+      content: `Bạn có chắc chắn muốn vô hiệu hóa chi nhánh "${branch.name}"?`,
       okText: 'Xác Nhận',
       cancelText: 'Hủy',
       onOk: async () => {
         try {
-          await userService.disableUser(user.id);
-          loadUsers();
+          await branchService.deactivateBranch(branch.id);
+          loadBranches();
         } catch (err) {
           // Error đã được xử lý bởi baseHttp interceptor
         }
@@ -90,16 +90,16 @@ const UserManagement = () => {
     });
   };
 
-  const handleEnable = (user: User) => {
+  const handleActivate = (branch: Branch) => {
     Modal.confirm({
-      title: 'Kích Hoạt Người Dùng',
-      content: `Bạn có chắc chắn muốn kích hoạt lại người dùng "${user.username}"?`,
+      title: 'Kích Hoạt Chi Nhánh',
+      content: `Bạn có chắc chắn muốn kích hoạt lại chi nhánh "${branch.name}"?`,
       okText: 'Xác Nhận',
       cancelText: 'Hủy',
       onOk: async () => {
         try {
-          await userService.enableUser(user.id);
-          loadUsers();
+          await branchService.activateBranch(branch.id);
+          loadBranches();
         } catch (err) {
           // Error đã được xử lý bởi baseHttp interceptor
         }
@@ -107,40 +107,49 @@ const UserManagement = () => {
     });
   };
 
-  const columns: ColumnsType<User> = [
+  const columns: ColumnsType<Branch> = [
     {
-      title: 'Tên Đăng Nhập',
-      dataIndex: 'username',
-      key: 'username',
-      width: 150,
+      title: 'Mã Chi Nhánh',
+      dataIndex: 'code',
+      key: 'code',
+      width: 120,
+    },
+    {
+      title: 'Tên Chi Nhánh',
+      dataIndex: 'name',
+      key: 'name',
+      width: 200,
     },
     {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
-      width: 200,
-    },
-    {
-      title: 'Họ Tên',
-      dataIndex: 'fullName',
-      key: 'fullName',
-      width: 150,
-      render: (text) => text || '-',
+      width: 180,
     },
     {
       title: 'Số Điện Thoại',
       dataIndex: 'phone',
       key: 'phone',
       width: 120,
-      render: (text) => text || '-',
     },
     {
       title: 'Địa Chỉ',
       dataIndex: 'address',
       key: 'address',
-      width: 200,
-      render: (text) => text || '-',
+      width: 250,
       ellipsis: true,
+    },
+    {
+      title: 'Giờ Mở Cửa',
+      dataIndex: 'openingTime',
+      key: 'openingTime',
+      width: 100,
+    },
+    {
+      title: 'Giờ Đóng Cửa',
+      dataIndex: 'closingTime',
+      key: 'closingTime',
+      width: 100,
     },
     {
       title: 'Trạng Thái',
@@ -148,13 +157,11 @@ const UserManagement = () => {
       key: 'status',
       width: 120,
       render: (status: number) => {
-        // DataStatus: 1 = ACTIVE, 0 = INACTIVE, -1 = DELETED
+        // DataStatus: 1 = ACTIVE, 0 = INACTIVE
         if (status === 1) {
           return <Tag color="green">Hoạt Động</Tag>;
-        } else if (status === 0) {
-          return <Tag color="red">Không Hoạt Động</Tag>;
         } else {
-          return <Tag color="default">Đã Xóa</Tag>;
+          return <Tag color="red">Không Hoạt Động</Tag>;
         }
       },
     },
@@ -180,7 +187,7 @@ const UserManagement = () => {
                 danger
                 icon={<StopOutlined />}
                 size="small"
-                onClick={() => handleDisable(record)}
+                onClick={() => handleDeactivate(record)}
               />
             </Tooltip>
           ) : (
@@ -189,7 +196,7 @@ const UserManagement = () => {
                 type="primary"
                 icon={<CheckCircleOutlined />}
                 size="small"
-                onClick={() => handleEnable(record)}
+                onClick={() => handleActivate(record)}
               />
             </Tooltip>
           )}
@@ -202,7 +209,7 @@ const UserManagement = () => {
     <div>
       <Card bodyStyle={{ padding: '16px' }}>
         <div className="flex justify-between items-center mb-2">
-          <h1 className="text-xl font-bold m-0">Quản Lý Người Dùng</h1>
+          <h1 className="text-xl font-bold m-0">Quản Lý Chi Nhánh</h1>
           <Space>
             <Tooltip title={showAdvancedSearch ? "Ẩn tìm kiếm nâng cao" : "Hiện tìm kiếm nâng cao"}>
               <Button
@@ -218,11 +225,11 @@ const UserManagement = () => {
               icon={<PlusOutlined />}
               onClick={handleCreate}
             >
-              Tạo Người Dùng
+              Tạo Chi Nhánh
             </Button>
             <Button
               icon={<ReloadOutlined />}
-              onClick={loadUsers}
+              onClick={loadBranches}
               loading={loading}
             >
               Làm Mới
@@ -235,12 +242,12 @@ const UserManagement = () => {
           <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <div className="flex gap-4 flex-wrap">
               <Search
-                placeholder="Tìm kiếm theo tên đăng nhập, email, họ tên, số điện thoại, địa chỉ..."
+                placeholder="Tìm kiếm theo mã, tên, email, số điện thoại, địa chỉ..."
                 allowClear
                 enterButton={<SearchOutlined />}
                 size="middle"
                 onSearch={handleSearch}
-                style={{ width: 450 }}
+                style={{ width: 400 }}
               />
               <Select
                 placeholder="Lọc theo trạng thái"
@@ -252,7 +259,6 @@ const UserManagement = () => {
                   { label: 'Tất cả', value: undefined },
                   { label: 'Hoạt động', value: 1 },
                   { label: 'Không hoạt động', value: 0 },
-                  { label: 'Đã xóa', value: -1 },
                 ]}
               />
             </div>
@@ -261,16 +267,16 @@ const UserManagement = () => {
 
         <Table
           columns={columns}
-          dataSource={users}
+          dataSource={branches}
           rowKey="id"
           loading={loading}
-          scroll={{ x: 1200 }}
+          scroll={{ x: 1400 }}
           pagination={{
             current: currentPage,
             pageSize: pageSize,
             total: total,
             showSizeChanger: true,
-            showTotal: (total) => `Tổng cộng ${total} người dùng`,
+            showTotal: (total) => `Tổng cộng ${total} chi nhánh`,
             onChange: (page, size) => {
               setCurrentPage(page);
               setPageSize(size);
@@ -283,4 +289,4 @@ const UserManagement = () => {
   );
 };
 
-export default UserManagement;
+export default BranchManagement;
