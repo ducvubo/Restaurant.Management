@@ -157,16 +157,17 @@ const StockIn = () => {
         items: items.map(({ key, ...item }) => item), // Remove key field
       };
 
-      const result = await stockTransactionService.stockIn(request);
+      // Use update API if in edit mode, otherwise create
+      const result = isEditMode && id
+        ? await stockTransactionService.updateStockIn(id, request)
+        : await stockTransactionService.stockIn(request);
+        
       if (result.success) {
-        // baseHttp already shows success notification
         form.resetFields();
         setItems([{ key: String(Date.now()), materialId: '', unitId: '', quantity: 0, unitPrice: 0 }]);
         navigate('/stock-in');
       }
-      // baseHttp already shows error notification if failed
     } catch (error: any) {
-      // baseHttp already shows error notification
       console.error('Stock in error:', error);
     } finally {
       setLoading(false);

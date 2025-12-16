@@ -29,8 +29,18 @@ export const stockTransactionService = {
     return response.data;
   },
 
+  updateStockIn: async (id: string, data: StockInRequest): Promise<ResultMessage<StockTransaction>> => {
+    const response = await Api.put<ResultMessage<StockTransaction>>(`${API_ENDPOINTS.STOCK_TRANSACTION_IN}?id=${id}`, data);
+    return response.data;
+  },
+
   stockOut: async (data: StockOutRequest): Promise<ResultMessage<StockTransaction>> => {
     const response = await Api.post<ResultMessage<StockTransaction>>(API_ENDPOINTS.STOCK_TRANSACTION_OUT, data);
+    return response.data;
+  },
+
+  updateStockOut: async (id: string, data: StockOutRequest): Promise<ResultMessage<StockTransaction>> => {
+    const response = await Api.put<ResultMessage<StockTransaction>>(`${API_ENDPOINTS.STOCK_TRANSACTION_OUT}?id=${id}`, data);
     return response.data;
   },
 
@@ -56,9 +66,16 @@ export const stockTransactionService = {
   },
 
   unlockTransaction: async (id: string): Promise<ResultMessage<string>> => {
-    const response = await Api.post<ResultMessage<string>>(`${API_ENDPOINTS.STOCK_TRANSACTION_BASE}/unlock`, null, {
+    const response = await Api.post<ResultMessage<string>>(API_ENDPOINTS.STOCK_TRANSACTION_UNLOCK, null, {
       params: { id },
     });
     return response.data;
+  },
+
+  previewLedger: async (id: string): Promise<any> => {
+    const response = await Api.get<ResultMessage<any>>(API_ENDPOINTS.STOCK_TRANSACTION_PREVIEW_LEDGER, {
+      params: { id },
+    });
+    return response.data.result;
   },
 };

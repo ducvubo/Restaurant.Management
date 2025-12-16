@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Card, Button, Space, Descriptions, Table, Tag, Modal, Spin, Alert } from 'antd';
+import { Card, Button, Space, Descriptions, Table, Tag, Modal, Spin, Alert, Tabs } from 'antd';
 import { ArrowLeftOutlined, EditOutlined, LockOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { stockTransactionService } from '@/services/stockTransactionService';
+import { inventoryLedgerService } from '@/services/inventoryLedgerService';
 import type { StockTransaction } from '@/types';
 import enumData from '@/enums/enums';
 import dayjs from 'dayjs';
@@ -14,6 +15,9 @@ const StockOutDetail = () => {
   const [loading, setLoading] = useState(false);
   const [transaction, setTransaction] = useState<StockTransaction | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('info');
+  const [previewData, setPreviewData] = useState<any>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -28,6 +32,26 @@ const StockOutDetail = () => {
     setError(null);
     try {
       const data = await stockTransactionService.getTransaction(id);
+      
+      // Load available stock for each item
+      if (data.stockOutItems && data.stockOutItems.length > 0 && data.warehouseId) {
+        const itemsWithStock = await Promise.all(
+          data.stockOutItems.map(async (item) => {
+            try {
+              const stock = await inventoryLedgerService.getAvailableStock(
+                data.warehouseId!,
+                item.materialId
+              );
+              return { ...item, availableStock: stock };
+            } catch (error) {
+              console.error('Failed to load stock:', error);
+              return item;
+            }
+          })
+        );
+        data.stockOutItems = itemsWithStock;
+      }
+      
       setTransaction(data);
     } catch (err: any) {
       setError('Không thể tải thông tin phiếu xuất');
@@ -59,6 +83,29 @@ const StockOutDetail = () => {
   const handleEdit = () => {
     navigate(`/stock-out/edit/${id}`);
   };
+
+  const loadPreview = async () => {
+    if (!id) return;
+    
+    setPreviewLoading(true);
+    try {
+      const data = await stockTransactionService.previewLedger(id);
+      setPreviewData(data);
+    } catch (err) {
+      console.error('Failed to load preview:', err);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  // Auto-refresh preview every 10s when tab is active
+  useEffect(() => {
+    if (activeTab === 'preview' && !transaction?.isLocked) {
+      loadPreview();
+      const interval = setInterval(loadPreview, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab, transaction?.isLocked, id]);
 
   if (loading) {
     return (
@@ -112,6 +159,26 @@ const StockOutDetail = () => {
       width: 120,
       align: 'right',
       render: (val) => val?.toLocaleString(),
+    },
+    {
+      title: 'Tồn Kho',
+      key: 'availableStock',
+      width: 120,
+      align: 'right',
+      render: (_: any, record: any) => {
+        if (record.availableStock === undefined) {
+          return <span className="text-gray-400">-</span>;
+        }
+        return <span className="text-green-600 font-bold">{record.availableStock.toLocaleString()}</span>;
+      },
+    },
+    {
+      title: 'Thành Tiền',
+      dataIndex: 'totalAmount',
+      key: 'totalAmount',
+      width: 150,
+      align: 'right',
+      render: (val) => val ? <strong>{val.toLocaleString()} đ</strong> : <span className="text-gray-400">-</span>,
     },
     {
       title: 'Ghi Chú',
@@ -179,15 +246,116 @@ const StockOutDetail = () => {
           <Descriptions.Item label="Ghi Chú" span={2}>{transaction.notes || '-'}</Descriptions.Item>
         </Descriptions>
 
-        <h3 className="text-lg font-semibold mb-2">Danh Sách Nguyên Liệu</h3>
-        <Table
-          columns={columns}
-          dataSource={transaction.stockOutItems || []}
-          pagination={false}
-          rowKey="id"
-          size="small"
-          bordered
-        />
+        <Tabs activeKey={activeTab} onChange={setActiveTab}>
+          <Tabs.TabPane tab="Thông Tin Phiếu" key="info">
+            <h3 className="text-lg font-semibold mb-2">Danh Sách Nguyên Liệu</h3>
+            <Table
+              columns={columns}
+              dataSource={transaction.stockOutItems || []}
+              pagination={false}
+              rowKey="id"
+              size="small"
+              bordered
+            />
+          </Tabs.TabPane>
+
+          {!isLocked && (
+            <Tabs.TabPane tab="Xem Trước Sổ Cái" key="preview">
+              <Spin spinning={previewLoading}>
+                {previewData && previewData.items && (
+                  <div>
+                    {previewData.items.map((item: any, idx: number) => (
+                      <div key={idx} style={{ marginBottom: 24 }}>
+                        <h4 className="font-semibold mb-2">{item.materialName}</h4>
+                        <Table
+                          size="small"
+                          bordered
+                          pagination={false}
+                          dataSource={item.batches || []}
+                          rowKey="batchId"
+                          columns={[
+                            {
+                              title: 'Batch (Phiếu Nhập)',
+                              dataIndex: 'batchCode',
+                              key: 'batchCode',
+                              width: 150,
+                            },
+                            {
+                              title: 'Ngày Nhập',
+                              key: 'transactionDate',
+                              width: 140,
+                              render: (record: any) => {
+                                // Get transaction date from batch if available
+                                return record.transactionDate 
+                                  ? dayjs(record.transactionDate).format('DD/MM/YYYY HH:mm')
+                                  : '-';
+                              },
+                            },
+                            {
+                              title: 'SL Xuất',
+                              dataIndex: 'quantityUsed',
+                              key: 'quantityUsed',
+                              width: 100,
+                              align: 'right',
+                              render: (val: number) => val?.toLocaleString(),
+                            },
+                            {
+                              title: 'Đơn Giá',
+                              dataIndex: 'unitPrice',
+                              key: 'unitPrice',
+                              align: 'right',
+                              render: (val: number) => val?.toLocaleString() + ' đ',
+                            },
+                            {
+                              title: 'Thành Tiền',
+                              dataIndex: 'totalAmount',
+                              key: 'totalAmount',
+                              align: 'right',
+                              render: (val: number) => <strong>{val?.toLocaleString()} đ</strong>,
+                            },
+                            {
+                              title: 'Tồn Còn Lại',
+                              dataIndex: 'remainingAfter',
+                              key: 'remainingAfter',
+                              align: 'right',
+                              render: (val: number) => (
+                                <span className={val === 0 ? 'text-red-500' : 'text-green-600'}>
+                                  {val?.toLocaleString()}
+                                </span>
+                              ),
+                            },
+                          ]}
+                          summary={() => (
+                            <Table.Summary>
+                              <Table.Summary.Row>
+                                <Table.Summary.Cell index={0} colSpan={3}>
+                                  <strong>Tổng {item.materialName}</strong>
+                                </Table.Summary.Cell>
+                                <Table.Summary.Cell index={1} align="right">
+                                  <strong>{item.totalAmount?.toLocaleString()} đ</strong>
+                                </Table.Summary.Cell>
+                                <Table.Summary.Cell index={2} />
+                              </Table.Summary.Row>
+                            </Table.Summary>
+                          )}
+                        />
+                      </div>
+                    ))}
+                    <div style={{ textAlign: 'right', marginTop: 16, fontSize: 18 }}>
+                      <strong>Tổng Giá Trị Xuất: </strong>
+                      <span style={{ color: '#1890ff', fontSize: 20, fontWeight: 'bold' }}>
+                        {previewData.grandTotal?.toLocaleString() || 0} đ
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {!previewData && !previewLoading && (
+                  <Alert message="Không có dữ liệu preview" type="info" />
+                )}
+              </Spin>
+            </Tabs.TabPane>
+          )}
+        </Tabs>
       </Card>
     </div>
   );

@@ -46,10 +46,10 @@ const StockOut = () => {
   }, []);
 
   useEffect(() => {
-    if (isEditMode && id) {
+    if (isEditMode && id && warehouses.length > 0 && materials.length > 0) {
       loadTransactionData();
     }
-  }, [id, isEditMode]);
+  }, [id, isEditMode, warehouses, materials]);
 
   const loadMetaData = async () => {
     try {
@@ -76,20 +76,9 @@ const StockOut = () => {
       setLoading(true);
       const transaction = await stockTransactionService.getTransaction(id);
       
-      // Pre-fill form
-      form.setFieldsValue({
-        warehouseId: transaction.warehouseId,
-        stockOutType: transaction.stockOutType,
-        destinationWarehouseId: transaction.destinationWarehouseId,
-        customerId: transaction.customerId,
-        disposalReason: transaction.disposalReason,
-        destinationBranchId: transaction.destinationBranchId,
-        transactionDate: transaction.transactionDate ? dayjs(transaction.transactionDate) : dayjs(),
-        referenceNumber: transaction.referenceNumber,
-        notes: transaction.notes,
-      });
+      console.log('Loaded transaction:', transaction); // Debug log
       
-      // Set stock out type state
+      // Set stock out type state from transaction
       if (transaction.stockOutType) {
         setStockOutType(transaction.stockOutType);
       }
@@ -99,15 +88,49 @@ const StockOut = () => {
         setSelectedWarehouse(transaction.warehouseId);
       }
       
+      // Pre-fill form AFTER setting states
+      setTimeout(() => {
+        form.setFieldsValue({
+          warehouseId: transaction.warehouseId,
+          stockOutType: transaction.stockOutType,
+          destinationWarehouseId: transaction.destinationWarehouseId,
+          customerId: transaction.customerId,
+          disposalReason: transaction.disposalReason,
+          destinationBranchId: transaction.destinationBranchId,
+          transactionDate: transaction.transactionDate ? dayjs(transaction.transactionDate) : dayjs(),
+          referenceNumber: transaction.referenceNumber,
+          notes: transaction.notes,
+        });
+      }, 100);
+      
       // Pre-fill items
       if (transaction.stockOutItems && transaction.stockOutItems.length > 0) {
-        const loadedItems: ItemRow[] = transaction.stockOutItems.map((item, index) => ({
-          key: String(index),
-          materialId: item.materialId,
-          unitId: item.unitId,
-          quantity: item.quantity,
-          notes: item.notes,
-        }));
+        const loadedItems: ItemRow[] = await Promise.all(
+          transaction.stockOutItems.map(async (item, index) => {
+            let availableStock: number | undefined = undefined;
+            
+            // Load available stock for each item
+            if (transaction.warehouseId && item.materialId) {
+              try {
+                availableStock = await inventoryLedgerService.getAvailableStock(
+                  transaction.warehouseId,
+                  item.materialId
+                );
+              } catch (error) {
+                console.error('Failed to load stock for item:', error);
+              }
+            }
+            
+            return {
+              key: String(index),
+              materialId: item.materialId,
+              unitId: item.unitId,
+              quantity: item.quantity,
+              notes: item.notes,
+              availableStock,
+            };
+          })
+        );
         setItems(loadedItems);
       }
     } catch (err) {
@@ -183,9 +206,21 @@ const StockOut = () => {
       return;
     }
 
+    // Check if quantity exceeds available stock
+    const hasExceededStock = items.some(item => {
+      if (item.availableStock !== undefined && item.quantity > item.availableStock) {
+        return true;
+      }
+      return false;
+    });
+    if (hasExceededStock) {
+      message.error('Số lượng xuất vượt quá tồn kho! Vui lòng kiểm tra lại.');
+      return;
+    }
+
     setLoading(true);
     try {
-      const result = await stockTransactionService.stockOut({
+      const requestData = {
         warehouseId: form.getFieldValue('warehouseId'),
         destinationBranchId: form.getFieldValue('destinationBranchId'),
         transactionDate: form.getFieldValue('transactionDate')?.toISOString(),
@@ -202,18 +237,20 @@ const StockOut = () => {
           quantity: item.quantity!,
           notes: item.notes,
         })),
-      });
+      };
+
+      // Use update API if in edit mode, otherwise create
+      const result = isEditMode && id
+        ? await stockTransactionService.updateStockOut(id, requestData)
+        : await stockTransactionService.stockOut(requestData);
 
       if (result.success) {
-        // baseHttp already shows success notification
         form.resetFields();
         setItems([{ key: String(Date.now()), materialId: '', unitId: '', quantity: 0 }]);
         setStockOutType(undefined);
         navigate('/stock-out');
       }
-      // baseHttp already shows error notification if failed
     } catch (error: any) {
-      // baseHttp already shows error notification
       console.error('Stock out error:', error);
     } finally {
       setLoading(false);
@@ -360,7 +397,7 @@ const StockOut = () => {
           initialValues={{ transactionDate: dayjs() }}
         >
           <Row gutter={16}>
-            <Col xs={24} sm={12}>
+            <Col xs={24} sm={8}>
               <Form.Item
                 name="warehouseId"
                 label="Kho Xuất"
@@ -371,7 +408,25 @@ const StockOut = () => {
                   placeholder="Chọn kho" 
                   showSearch 
                   filterOption={(input, option) => (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())}
-                  onChange={(value) => setSelectedWarehouse(value)}
+                  onChange={async (value) => {
+                    setSelectedWarehouse(value);
+                    // Reload stock for all items
+                    const updatedItems = await Promise.all(
+                      items.map(async (item) => {
+                        if (item.materialId) {
+                          try {
+                            const stock = await inventoryLedgerService.getAvailableStock(value, item.materialId);
+                            return { ...item, availableStock: stock };
+                          } catch (error) {
+                            console.error('Failed to load stock:', error);
+                            return item;
+                          }
+                        }
+                        return item;
+                      })
+                    );
+                    setItems(updatedItems);
+                  }}
                 >
                   {warehouses.map(w => (
                     <Option key={w.id} value={w.id}>{w.name}</Option>
@@ -379,7 +434,7 @@ const StockOut = () => {
                 </Select>
               </Form.Item>
             </Col>
-            <Col xs={24} sm={12}>
+            <Col xs={24} sm={8}>
               <Form.Item
                 name="stockOutType"
                 label="Loại Xuất Kho"
@@ -394,6 +449,16 @@ const StockOut = () => {
                     <Option key={item.value} value={item.value}>{item.text}</Option>
                   ))}
                 </Select>
+              </Form.Item>
+            </Col>
+            <Col xs={24} sm={8}>
+              <Form.Item
+                name="transactionDate"
+                label="Ngày Xuất"
+                rules={[{ required: true, message: 'Vui lòng chọn ngày xuất' }]}
+                style={{ marginBottom: '12px' }}
+              >
+                <DatePicker style={{ width: '100%' }} showTime format="YYYY-MM-DD HH:mm" />
               </Form.Item>
             </Col>
           </Row>
@@ -419,6 +484,15 @@ const StockOut = () => {
                         <Option key={w.id} value={w.id}>{w.name}</Option>
                       ))}
                   </Select>
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name="referenceNumber"
+                  label="Số Chứng Từ"
+                  style={{ marginBottom: '12px' }}
+                >
+                  <Input placeholder="Nhập số chứng từ" />
                 </Form.Item>
               </Col>
             </Row>
@@ -465,69 +539,70 @@ const StockOut = () => {
                   </Select>
                 </Form.Item>
               </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name="referenceNumber"
+                  label="Số Chứng Từ"
+                  style={{ marginBottom: '12px' }}
+                >
+                  <Input placeholder="Nhập số chứng từ" />
+                </Form.Item>
+              </Col>
             </Row>
           )}
 
           {stockOutType === 3 && (
             <Row gutter={16}>
-              <Col xs={24}>
+              <Col xs={24} sm={12}>
                 <Form.Item
                   name="disposalReason"
                   label="Lý Do Tiêu Hủy"
                   rules={[{ required: true, message: 'Vui lòng nhập lý do tiêu hủy' }]}
                   style={{ marginBottom: '12px' }}
                 >
-                  <TextArea 
-                    rows={3} 
+                  <Input 
                     placeholder="Nhập lý do tiêu hủy (VD: Hết hạn, hư hỏng, không đạt chất lượng...)" 
                   />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name="referenceNumber"
+                  label="Số Chứng Từ"
+                  style={{ marginBottom: '12px' }}
+                >
+                  <Input placeholder="Nhập số chứng từ" />
+                </Form.Item>
+              </Col>
+            </Row>
+          )}
+
+          {!stockOutType && (
+            <Row gutter={16}>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name="referenceNumber"
+                  label="Số Chứng Từ"
+                  style={{ marginBottom: '12px' }}
+                >
+                  <Input placeholder="Nhập số chứng từ" />
                 </Form.Item>
               </Col>
             </Row>
           )}
 
           <Row gutter={16}>
-            <Col xs={24} sm={12}>
+            <Col xs={24}>
               <Form.Item
-                name="destinationBranchId"
-                label="Nơi Nhận (Chi Nhánh)"
+                name="notes"
+                label="Ghi Chú"
                 style={{ marginBottom: '12px' }}
               >
-                <Input placeholder="Nhập nơi nhận" />
+                <TextArea rows={2} placeholder="Nhập ghi chú" />
               </Form.Item>
             </Col>
           </Row>
 
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                name="transactionDate"
-                label="Ngày Xuất"
-                rules={[{ required: true, message: 'Vui lòng chọn ngày xuất' }]}
-                style={{ marginBottom: '12px' }}
-              >
-                <DatePicker style={{ width: '100%' }} showTime format="YYYY-MM-DD HH:mm" />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                name="referenceNumber"
-                label="Số Chứng Từ"
-                rules={[{ required: true, message: 'Vui lòng nhập số chứng từ' }]}
-                style={{ marginBottom: '12px' }}
-              >
-                <Input placeholder="Nhập số chứng từ" />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Form.Item
-            name="notes"
-            label="Ghi Chú"
-            style={{ marginBottom: '12px' }}
-          >
-            <TextArea rows={2} placeholder="Nhập ghi chú" />
-          </Form.Item>
         </Form>
 
         <div className="mt-4">

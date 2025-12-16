@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Space, Tag, Card, Select, DatePicker, Statistic, Row, Col } from 'antd';
+import { Table, Button, Tag, Card, Select, DatePicker, Statistic, Row, Col } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { ReloadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -166,23 +166,22 @@ const InventoryLedgerManagement = () => {
 
   return (
     <div>
-      <Card bodyStyle={{ padding: '16px' }}>
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-xl font-bold m-0">Sổ Cái Tồn Kho (Thẻ Kho)</h1>
-          <Space>
-             <Button
-              icon={<ReloadOutlined />}
-              onClick={() => { loadLedger(); loadCurrentStock(); }}
-              loading={loading}
-            >
-              Làm Mới
-            </Button>
-          </Space>
+      <Card bodyStyle={{ padding: '12px' }}>
+        <div className="flex justify-between items-center mb-2">
+          <h1 className="text-lg font-bold m-0">Sổ Cái Tồn Kho (Thẻ Kho)</h1>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={() => { loadLedger(); loadCurrentStock(); }}
+            loading={loading}
+            size="small"
+          >
+            Làm Mới
+          </Button>
         </div>
 
-        <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-           <Row gutter={[16, 16]} align="middle">
-               <Col span={6}>
+        <div className="mb-2 p-2 bg-gray-50 rounded border border-gray-200">
+           <Row gutter={[8, 8]} align="middle">
+               <Col span={5}>
                    <Select
                     placeholder="Chọn Kho"
                     style={{ width: '100%' }}
@@ -196,13 +195,13 @@ const InventoryLedgerManagement = () => {
                       ))}
                   </Select>
                </Col>
-               <Col span={6}>
+               <Col span={5}>
                    <Select
                     placeholder="Chọn Nguyên Liệu"
                     style={{ width: '100%' }}
                     value={materialId}
                     onChange={(val) => { setMaterialId(val); setCurrentPage(1); }}
-                     showSearch
+                    showSearch
                     filterOption={(input, option) => (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())}
                   >
                       {materials.map(m => (
@@ -210,26 +209,33 @@ const InventoryLedgerManagement = () => {
                       ))}
                   </Select>
                </Col>
-               <Col span={8}>
+               <Col span={9}>
                    <RangePicker
                      value={dateRange}
                      onChange={setDateRange}
                      style={{ width: '100%' }}
                   />
                </Col>
-               <Col span={4}>
-                   <Card size="small">
-                       <Statistic title="Tồn Hiện Tại" value={currentStock} valueStyle={{ color: '#3f8600' }} />
+               <Col span={5}>
+                   <Card bodyStyle={{ padding: '8px' }}>
+                       <Statistic 
+                         title="Tồn Kho" 
+                         value={currentStock} 
+                         precision={2} 
+                         valueStyle={{ fontSize: '16px', color: '#3f8600', fontWeight: 'bold' }} 
+                       />
                    </Card>
                </Col>
            </Row>
         </div>
-
+        
         <Table
           columns={columns}
           dataSource={ledgers}
           rowKey="id"
           loading={loading}
+          size="small"
+          bordered
           scroll={{ x: 1000 }}
           pagination={{
             current: currentPage,

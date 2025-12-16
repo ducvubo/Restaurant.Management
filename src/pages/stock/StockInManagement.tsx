@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Table, Button, Space, Tag } from 'antd';
-import { PlusOutlined, EyeOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
+import { PlusOutlined, EyeOutlined, LockOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import type { StockTransaction } from '@/types';
 import { stockTransactionService } from '@/services/stockTransactionService';
@@ -36,22 +36,9 @@ const StockInManagement = () => {
   const handleLock = async (id: string) => {
     try {
       await stockTransactionService.lockTransaction(id);
-      // baseHttp already shows success notification
       loadData();
     } catch (error: any) {
-      // baseHttp already shows error notification
       console.error('Lock transaction error:', error);
-    }
-  };
-
-  const handleUnlock = async (id: string) => {
-    try {
-      await stockTransactionService.unlockTransaction(id);
-      // baseHttp already shows success notification
-      loadData();
-    } catch (error: any) {
-      // baseHttp already shows error notification
-      console.error('Unlock transaction error:', error);
     }
   };
 
@@ -113,16 +100,7 @@ const StockInManagement = () => {
           >
             Xem
           </Button>
-          {record.isLocked ? (
-            <Button
-              type="link"
-              danger
-              icon={<UnlockOutlined />}
-              onClick={() => handleUnlock(record.id)}
-            >
-              Mở
-            </Button>
-          ) : (
+          {!record.isLocked && (
             <Button
               type="link"
               icon={<LockOutlined />}

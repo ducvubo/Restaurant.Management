@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Card, Button, Space, Descriptions, Table, Tag, Modal, Spin, Alert } from 'antd';
+import { Card, Button, Space, Descriptions, Table, Tag, Modal, Spin, Alert, Tabs } from 'antd';
 import { ArrowLeftOutlined, EditOutlined, LockOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { stockTransactionService } from '@/services/stockTransactionService';
@@ -13,6 +13,9 @@ const StockInDetail = () => {
   const [loading, setLoading] = useState(false);
   const [transaction, setTransaction] = useState<StockTransaction | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('info');
+  const [previewData, setPreviewData] = useState<any>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -58,6 +61,29 @@ const StockInDetail = () => {
   const handleEdit = () => {
     navigate(`/stock-in/edit/${id}`);
   };
+
+  const loadPreview = async () => {
+    if (!id) return;
+    
+    setPreviewLoading(true);
+    try {
+      const data = await stockTransactionService.previewLedger(id);
+      setPreviewData(data);
+    } catch (err) {
+      console.error('Failed to load preview:', err);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  // Auto-refresh preview every 10s when tab is active
+  useEffect(() => {
+    if (activeTab === 'preview' && !transaction?.isLocked) {
+      loadPreview();
+      const interval = setInterval(loadPreview, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab, transaction?.isLocked, id]);
 
   if (loading) {
     return (
@@ -170,22 +196,86 @@ const StockInDetail = () => {
           <Descriptions.Item label="Ghi Chú" span={2}>{transaction.notes || '-'}</Descriptions.Item>
         </Descriptions>
 
-        <h3 className="text-lg font-semibold mb-2">Danh Sách Nguyên Liệu</h3>
-        <Table
-          columns={columns}
-          dataSource={transaction.stockInItems || []}
-          pagination={false}
-          rowKey="id"
-          size="small"
-          bordered
-        />
+        <Tabs activeKey={activeTab} onChange={setActiveTab}>
+          <Tabs.TabPane tab="Thông Tin Phiếu" key="info">
+            <h3 className="text-lg font-semibold mb-2">Danh Sách Nguyên Liệu</h3>
+            <Table
+              columns={columns}
+              dataSource={transaction.stockInItems || []}
+              pagination={false}
+              rowKey="id"
+              size="small"
+              bordered
+            />
 
-        <div style={{ textAlign: 'right', marginTop: 16, fontSize: 16 }}>
-          <strong>Tổng Tiền: </strong>
-          <span style={{ color: '#1890ff', fontSize: 18, fontWeight: 'bold' }}>
-            {transaction.totalAmount?.toLocaleString() || 0} đ
-          </span>
-        </div>
+            <div style={{ textAlign: 'right', marginTop: 16, fontSize: 16 }}>
+              <strong>Tổng Tiền: </strong>
+              <span style={{ color: '#1890ff', fontSize: 18, fontWeight: 'bold' }}>
+                {transaction.totalAmount?.toLocaleString() || 0} đ
+              </span>
+            </div>
+          </Tabs.TabPane>
+
+          {!isLocked && (
+            <Tabs.TabPane tab="Xem Trước Sổ Cái" key="preview">
+              <Spin spinning={previewLoading}>
+                {previewData && previewData.items && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Batch Mới Sẽ Được Tạo</h3>
+                    <Table
+                      size="small"
+                      bordered
+                      pagination={false}
+                      dataSource={previewData.items}
+                      rowKey="materialId"
+                      columns={[
+                        {
+                          title: 'Nguyên Liệu',
+                          dataIndex: 'materialName',
+                          key: 'materialName',
+                        },
+                        {
+                          title: 'Batch Code',
+                          key: 'batchCode',
+                          render: (record: any) => record.batches?.[0]?.batchCode || '-',
+                        },
+                        {
+                          title: 'Số Lượng',
+                          dataIndex: 'totalQuantity',
+                          key: 'totalQuantity',
+                          align: 'right',
+                          render: (val: number) => val?.toLocaleString(),
+                        },
+                        {
+                          title: 'Đơn Giá',
+                          key: 'unitPrice',
+                          align: 'right',
+                          render: (record: any) => (record.batches?.[0]?.unitPrice?.toLocaleString() || 0) + ' đ',
+                        },
+                        {
+                          title: 'Thành Tiền',
+                          dataIndex: 'totalAmount',
+                          key: 'totalAmount',
+                          align: 'right',
+                          render: (val: number) => <strong>{val?.toLocaleString()} đ</strong>,
+                        },
+                      ]}
+                    />
+                    <div style={{ textAlign: 'right', marginTop: 16, fontSize: 18 }}>
+                      <strong>Tổng Giá Trị Nhập: </strong>
+                      <span style={{ color: '#1890ff', fontSize: 20, fontWeight: 'bold' }}>
+                        {previewData.grandTotal?.toLocaleString() || 0} đ
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {!previewData && !previewLoading && (
+                  <Alert message="Không có dữ liệu preview" type="info" />
+                )}
+              </Spin>
+            </Tabs.TabPane>
+          )}
+        </Tabs>
       </Card>
     </div>
   );

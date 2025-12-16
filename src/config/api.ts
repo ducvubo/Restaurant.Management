@@ -89,6 +89,9 @@ export const API_ENDPOINTS = {
   STOCK_TRANSACTION_OUT: '/management/stock-transactions/out',
   STOCK_TRANSACTION_GET: '/management/stock-transactions/get',
   STOCK_TRANSACTION_LIST: '/management/stock-transactions/list',
+  STOCK_TRANSACTION_LOCK: '/management/stock-transactions/lock',
+  STOCK_TRANSACTION_UNLOCK: '/management/stock-transactions/unlock',
+  STOCK_TRANSACTION_PREVIEW_LEDGER: '/management/stock-transactions/preview-ledger',
 
   // Inventory Ledger Management
   INVENTORY_LEDGER_GET: '/management/inventory-ledger/get',
