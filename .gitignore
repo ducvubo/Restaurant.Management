@@ -24,3 +24,4 @@ package-lock.json
 *.sw?
 package-lock.json
 .vs
+*.txt

@@ -5,6 +5,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { ReloadOutlined, EditOutlined, StopOutlined, CheckCircleOutlined, PlusOutlined, SearchOutlined, FilterOutlined } from '@ant-design/icons';
 import type { Supplier, SupplierListRequest } from '@/types';
 import { supplierService } from '@/services/supplierService';
+import enumData from '@/enums/enums';
 
 const { Search } = Input;
 
@@ -146,11 +147,12 @@ const SupplierManagement = () => {
       key: 'status',
       width: 120,
       render: (status: number) => {
-        if (status === 1) {
-          return <Tag color="green">Hoạt Động</Tag>;
-        } else {
-          return <Tag color="red">Không Hoạt Động</Tag>;
-        }
+        const statusItem = enumData.dataStatus.get(status);
+        return (
+          <Tag color={status === 1 ? 'green' : 'red'}>
+            {statusItem?.text || 'Không xác định'}
+          </Tag>
+        );
       },
     },
     {

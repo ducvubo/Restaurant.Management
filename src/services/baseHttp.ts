@@ -260,9 +260,9 @@ Api.interceptors.response.use(
           401
         );
 
-        // setTimeout(() => {
-        //   window.location.href = '/login';
-        // }, 1500);
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1500);
       } else if (response.status === 403) {
         showErrorNotification(
           'Thất bại',

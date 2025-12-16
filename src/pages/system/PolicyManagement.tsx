@@ -5,6 +5,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { ReloadOutlined, EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import type { Policy } from '@/types';
 import { policyService } from '@/services/policyService';
+import enumData from '@/enums/enums';
 
 const PolicyManagement = () => {
   const navigate = useNavigate();
@@ -101,14 +102,13 @@ const PolicyManagement = () => {
       key: 'status',
       width: 120,
       render: (status: number) => {
-        // DataStatus: 1 = ACTIVE, 0 = INACTIVE, -1 = DELETED
-        if (status === 1) {
-          return <Tag color="green">Hoạt Động</Tag>;
-        } else if (status === 0) {
-          return <Tag color="red">Không Hoạt Động</Tag>;
-        } else {
-          return <Tag color="default">Đã Xóa</Tag>;
-        }
+        const statusItem = enumData.dataStatus.get(status);
+        const colorMap: Record<number, string> = { 1: 'green', 0: 'red', [-1]: 'default' };
+        return (
+          <Tag color={colorMap[status] || 'default'}>
+            {statusItem?.text || 'Không xác định'}
+          </Tag>
+        );
       },
     },
     {

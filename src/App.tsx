@@ -31,10 +31,18 @@ import UpdateUnit from './pages/unit/UpdateUnit';
 import SupplierManagement from './pages/supplier/SupplierManagement';
 import AddSupplier from './pages/supplier/AddSupplier';
 import UpdateSupplier from './pages/supplier/UpdateSupplier';
+// Customer
+import CustomerManagement from './pages/customer/CustomerManagement';
+import AddCustomer from './pages/customer/AddCustomer';
+import UpdateCustomer from './pages/customer/UpdateCustomer';
 // Stock
 import StockTransactionManagement from './pages/stock/StockTransactionManagement';
+import StockInManagement from './pages/stock/StockInManagement';
+import StockOutManagement from './pages/stock/StockOutManagement';
 import StockIn from './pages/stock/StockIn';
+import StockInDetail from './pages/stock/StockInDetail';
 import StockOut from './pages/stock/StockOut';
+import StockOutDetail from './pages/stock/StockOutDetail';
 import InventoryLedgerManagement from './pages/stock/InventoryLedgerManagement';
 import { authService } from './services/authService';
 import { setNotificationApi } from './services/notificationService';
@@ -108,6 +116,11 @@ function AppContent() {
           <Route path="suppliers/add" element={<AddSupplier />} />
           <Route path="suppliers/add" element={<AddSupplier />} />
           <Route path="suppliers/update" element={<UpdateSupplier />} />
+          
+          <Route path="customers" element={<CustomerManagement />} />
+          <Route path="customers/add" element={<AddCustomer />} />
+          <Route path="customers/update" element={<UpdateCustomer />} />
+          
           <Route path="warehouses" element={<WarehouseManagement />} />
           <Route path="warehouses/add" element={<AddWarehouse />} />
           <Route path="warehouses/update" element={<UpdateWarehouse />} />
@@ -119,6 +132,17 @@ function AppContent() {
           <Route path="materials" element={<MaterialManagement />} />
           <Route path="materials/add" element={<AddMaterial />} />
           <Route path="materials/update" element={<UpdateMaterial />} />
+          
+          <Route path="stock-in" element={<StockInManagement />} />
+          <Route path="stock-in/add" element={<StockIn />} />
+          <Route path="stock-in/:id" element={<StockInDetail />} />
+          <Route path="stock-in/edit/:id" element={<StockIn />} />
+          
+          <Route path="stock-out" element={<StockOutManagement />} />
+          <Route path="stock-out/add" element={<StockOut />} />
+          <Route path="stock-out/:id" element={<StockOutDetail />} />
+          <Route path="stock-out/edit/:id" element={<StockOut />} />
+          
           <Route path="stock-transactions" element={<StockTransactionManagement />} />
           <Route path="stock-transactions/in" element={<StockIn />} />
           <Route path="stock-transactions/out" element={<StockOut />} />

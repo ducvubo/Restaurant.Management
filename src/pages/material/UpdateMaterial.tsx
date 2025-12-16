@@ -70,7 +70,6 @@ const UpdateMaterial = () => {
 
       const result = await materialService.updateMaterial(request);
       if (result.success) {
-        message.success('Cập nhật NVL thành công');
         navigate('/materials');
       } else {
         message.error(result.message || 'Cập nhật thất bại');

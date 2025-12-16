@@ -42,7 +42,6 @@ const AddWarehouse = () => {
 
       const result = await warehouseService.createWarehouse(request);
       if (result.success) {
-        message.success('Tạo kho thành công');
         navigate('/warehouses');
       } else {
         message.error(result.message || 'Tạo kho thất bại');

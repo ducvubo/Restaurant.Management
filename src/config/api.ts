@@ -66,7 +66,25 @@ export const API_ENDPOINTS = {
   MATERIAL_ACTIVATE: '/management/materials/activate',
   MATERIAL_DEACTIVATE: '/management/materials/deactivate',
 
+  // Material Category Management
+  MATERIAL_CATEGORY_GET: '/management/material-categories/get',
+  MATERIAL_CATEGORY_GET_ALL: '/management/material-categories/get-all',
+  MATERIAL_CATEGORY_CREATE: '/management/material-categories/create',
+  MATERIAL_CATEGORY_UPDATE: '/management/material-categories/update',
+  MATERIAL_CATEGORY_ACTIVATE: '/management/material-categories/activate',
+  MATERIAL_CATEGORY_DEACTIVATE: '/management/material-categories/deactivate',
+  MATERIAL_CATEGORY_LIST: '/management/material-categories/list',
+
+  // Customer Management
+  CUSTOMER_GET: '/management/customers/get',
+  CUSTOMER_CREATE: '/management/customers/create',
+  CUSTOMER_UPDATE: '/management/customers/update',
+  CUSTOMER_LIST: '/management/customers/list',
+  CUSTOMER_DEACTIVATE: '/management/customers/deactivate',
+  CUSTOMER_ACTIVATE: '/management/customers/activate',
+
   // Stock Transaction Management
+  STOCK_TRANSACTION_BASE: '/management/stock-transactions',
   STOCK_TRANSACTION_IN: '/management/stock-transactions/in',
   STOCK_TRANSACTION_OUT: '/management/stock-transactions/out',
   STOCK_TRANSACTION_GET: '/management/stock-transactions/get',
@@ -75,4 +93,5 @@ export const API_ENDPOINTS = {
   // Inventory Ledger Management
   INVENTORY_LEDGER_GET: '/management/inventory-ledger/get',
   INVENTORY_LEDGER_CURRENT_STOCK: '/management/inventory-ledger/current-stock',
+  INVENTORY_LEDGER_AVAILABLE_STOCK: '/management/inventory-ledger/available-stock',
 } as const;

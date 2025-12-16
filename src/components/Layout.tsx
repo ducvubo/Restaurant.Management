@@ -75,10 +75,20 @@ const Layout = () => {
         label: <span className="font-semibold">Nguyên Vật Liệu</span>,
       },
       {
-        key: '/stock-transactions',
+        key: '/stock-in',
         icon: <SwapOutlined />,
-        label: <span className="font-semibold">Nhập/Xuất Kho</span>,
+        label: <span className="font-semibold">Quản Lý Nhập Kho</span>,
       },
+      {
+        key: '/stock-out',
+        icon: <SwapOutlined />,
+        label: <span className="font-semibold">Quản Lý Xuất Kho</span>,
+      },
+      // {
+      //   key: '/stock-transactions',
+      //   icon: <SwapOutlined />,
+      //   label: <span className="font-semibold">Nhập/Xuất Kho</span>,
+      // },
       {
         key: '/inventory-ledger',
         icon: <ReadOutlined />,
@@ -93,6 +103,11 @@ const Layout = () => {
         key: '/suppliers',
         icon: <TeamOutlined />,
         label: <span className="font-semibold">Nhà Cung Cấp</span>,
+      },
+      {
+        key: '/customers',
+        icon: <TeamOutlined />,
+        label: <span className="font-semibold">Khách Hàng</span>,
       },
       ],
     },

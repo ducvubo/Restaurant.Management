@@ -19,6 +19,11 @@ export interface EnumCategory {
 export interface Enums {
   readonly dataStatus: DataStatusEnumCategory;
   readonly resultCode: ResultCodeEnumCategory;
+  readonly customerType: CustomerTypeEnumCategory;
+  readonly inventoryMethod: InventoryMethodEnumCategory;
+  readonly transactionType: TransactionTypeEnumCategory;
+  readonly warehouseType: WarehouseTypeEnumCategory;
+  readonly stockOutType: StockOutTypeEnumCategory;
 }
 
 export interface DataStatusEnumCategory extends EnumCategory {
@@ -42,6 +47,42 @@ export interface ResultCodeEnumCategory extends EnumCategory {
 }
 
 export type ResultCodeValue = 200 | 4002 | 400 | 20002 | 20004 | 20005 | 11001 | 11002 | 1003;
+
+export interface CustomerTypeEnumCategory extends EnumCategory {
+  readonly INDIVIDUAL: EnumItem;
+  readonly COMPANY: EnumItem;
+}
+
+export type CustomerTypeValue = 1 | 2;
+
+export interface InventoryMethodEnumCategory extends EnumCategory {
+  readonly FIFO: EnumItem;
+  readonly LIFO: EnumItem;
+}
+
+export type InventoryMethodValue = 1 | 2;
+
+export interface TransactionTypeEnumCategory extends EnumCategory {
+  readonly STOCK_IN: EnumItem;
+  readonly STOCK_OUT: EnumItem;
+}
+
+export type TransactionTypeValue = 1 | 2;
+
+export interface WarehouseTypeEnumCategory extends EnumCategory {
+  readonly CENTRAL: EnumItem;
+  readonly BRANCH: EnumItem;
+}
+
+export type WarehouseTypeValue = 1 | 2;
+
+export interface StockOutTypeEnumCategory extends EnumCategory {
+  readonly INTERNAL_TRANSFER: EnumItem;
+  readonly RETAIL_SALE: EnumItem;
+  readonly DISPOSAL: EnumItem;
+}
+
+export type StockOutTypeValue = 1 | 2 | 3;
 
 const enumsData = {
   dataStatus: {
@@ -140,6 +181,104 @@ const enumsData = {
       member: "RATE_LIMIT_ERROR",
       name: "",
       text: "Truy cập quá thường xuyên, vui lòng thử lại sau",
+      class: "",
+      guidId: ""
+    },
+  },
+  customerType: {
+    INDIVIDUAL: {
+      value: 1,
+      member: "INDIVIDUAL",
+      name: "",
+      text: "Cá nhân",
+      class: "",
+      guidId: ""
+    },
+    COMPANY: {
+      value: 2,
+      member: "COMPANY",
+      name: "",
+      text: "Doanh nghiệp",
+      class: "",
+      guidId: ""
+    },
+  },
+  inventoryMethod: {
+    FIFO: {
+      value: 1,
+      member: "FIFO",
+      name: "",
+      text: "FIFO - Nhập trước xuất trước",
+      class: "",
+      guidId: ""
+    },
+    LIFO: {
+      value: 2,
+      member: "LIFO",
+      name: "",
+      text: "LIFO - Nhập sau xuất trước",
+      class: "",
+      guidId: ""
+    },
+  },
+  transactionType: {
+    STOCK_IN: {
+      value: 1,
+      member: "STOCK_IN",
+      name: "",
+      text: "Nhập Kho",
+      class: "",
+      guidId: ""
+    },
+    STOCK_OUT: {
+      value: 2,
+      member: "STOCK_OUT",
+      name: "",
+      text: "Xuất Kho",
+      class: "",
+      guidId: ""
+    },
+  },
+  warehouseType: {
+    CENTRAL: {
+      value: 1,
+      member: "CENTRAL",
+      name: "",
+      text: "Kho Trung Tâm",
+      class: "",
+      guidId: ""
+    },
+    BRANCH: {
+      value: 2,
+      member: "BRANCH",
+      name: "",
+      text: "Kho Chi Nhánh",
+      class: "",
+      guidId: ""
+    },
+  },
+  stockOutType: {
+    INTERNAL_TRANSFER: {
+      value: 1,
+      member: "INTERNAL_TRANSFER",
+      name: "",
+      text: "Chuyển kho nội bộ",
+      class: "",
+      guidId: ""
+    },
+    RETAIL_SALE: {
+      value: 2,
+      member: "RETAIL_SALE",
+      name: "",
+      text: "Bán lẻ",
+      class: "",
+      guidId: ""
+    },
+    DISPOSAL: {
+      value: 3,
+      member: "DISPOSAL",
+      name: "",
+      text: "Tiêu hủy",
       class: "",
       guidId: ""
     },

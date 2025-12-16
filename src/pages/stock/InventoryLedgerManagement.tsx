@@ -3,7 +3,7 @@ import { Table, Button, Space, Tag, Card, Select, DatePicker, Statistic, Row, Co
 import type { ColumnsType } from 'antd/es/table';
 import { ReloadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import type { InventoryLedger, InventoryLedgerListRequest, Material, Warehouse } from '@/types';
+import type { InventoryLedger, Material, Warehouse } from '@/types';
 import { warehouseService } from '@/services/warehouseService';
 import { materialService } from '@/services/materialService';
 import { inventoryLedgerService } from '@/services/inventoryLedgerService';
@@ -58,19 +58,34 @@ const InventoryLedgerManagement = () => {
 
     try {
       setLoading(true);
-      const request: InventoryLedgerListRequest = {
+      const request: any = {
         warehouseId,
         materialId,
-        startDate: dateRange ? dateRange[0].format('YYYY-MM-DD') : undefined,
-        endDate: dateRange ? dateRange[1].format('YYYY-MM-DD') : undefined,
+        fromDate: dateRange ? dateRange[0].format('YYYY-MM-DD') : undefined,
+        toDate: dateRange ? dateRange[1].format('YYYY-MM-DD') : undefined,
         page: currentPage,
         size: pageSize,
       };
-      const data = await inventoryLedgerService.getLedger(request);
-      setLedgers(data.items);
-      setTotal(data.total);
+      console.log('Loading ledger with request:', request);
+      const data = await inventoryLedgerService.get(request);
+      console.log('Ledger data received:', data);
+      
+      // Handle different response structures
+      if (Array.isArray(data)) {
+        setLedgers(data);
+        setTotal(data.length);
+      } else if (data && data.items) {
+        setLedgers(data.items);
+        setTotal(data.total || data.items.length);
+      } else {
+        console.warn('Unexpected data structure:', data);
+        setLedgers([]);
+        setTotal(0);
+      }
     } catch (err) {
-      // handled
+      console.error('Error loading ledger:', err);
+      setLedgers([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -98,39 +113,38 @@ const InventoryLedgerManagement = () => {
       title: 'Mã GD',
       dataIndex: 'transactionCode',
       key: 'transactionCode',
-      width: 120,
+      width: 150,
     },
     {
       title: 'Loại GD',
-      dataIndex: 'transactionType',
-      key: 'transactionType',
-      width: 120,
-      render: (type: number) => {
-          if (type === 1) return <Tag color="green">Nhập</Tag>;
-          if (type === 2) return <Tag color="orange">Xuất</Tag>;
-          return type;
+      dataIndex: 'inventoryMethod',
+      key: 'inventoryMethod',
+      width: 100,
+      render: (method: string) => {
+        if (method === 'FIFO') return <Tag color="blue">FIFO</Tag>;
+        if (method === 'LIFO') return <Tag color="purple">LIFO</Tag>;
+        return method;
       }
     },
     {
       title: 'Nhập',
-      dataIndex: 'quantityIn',
-      key: 'quantityIn',
+      dataIndex: 'quantity',
+      key: 'quantity',
       width: 100,
       render: (val) => val > 0 ? <span className="text-green-600 font-bold">+{val}</span> : '-',
     },
     {
       title: 'Xuất',
-      dataIndex: 'quantityOut',
       key: 'quantityOut',
       width: 100,
-      render: (val) => val > 0 ? <span className="text-orange-600 font-bold">-{val}</span> : '-',
+      render: () => '-', // Stock out will be tracked separately
     },
     {
       title: 'Tồn Cuối',
-      dataIndex: 'balance',
-      key: 'balance',
+      dataIndex: 'remainingQuantity',
+      key: 'remainingQuantity',
       width: 100,
-      render: (val) => <strong>{val}</strong>,
+      render: (val) => <strong>{val || 0}</strong>,
     },
     {
       title: 'Đơn Giá',
@@ -141,10 +155,12 @@ const InventoryLedgerManagement = () => {
     },
     {
       title: 'Giá Trị Tồn',
-      dataIndex: 'totalValue',
       key: 'totalValue',
       width: 150,
-      render: (val) => val ? val.toLocaleString() : '0',
+      render: (_, record) => {
+        const total = (record.remainingQuantity || 0) * (record.unitPrice || 0);
+        return total.toLocaleString();
+      },
     },
   ];
 

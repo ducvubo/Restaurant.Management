@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, Button, Space, Tag, Card, Modal, Tooltip, Input, Select, message } from 'antd';
+import { Table, Button, Space, Tag, Card, Modal, Tooltip, Input, Select } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { ReloadOutlined, EditOutlined, StopOutlined, CheckCircleOutlined, PlusOutlined, SearchOutlined, FilterOutlined } from '@ant-design/icons';
 import type { Material, MaterialListRequest } from '@/types';
 import { materialService } from '@/services/materialService';
+import enumData from '@/enums/enums';
 
 const { Search } = Input;
 
@@ -79,7 +80,6 @@ const MaterialManagement = () => {
       onOk: async () => {
         try {
           await materialService.deactivateMaterial(material.id);
-          message.success("Vô hiệu hóa thành công");
           loadMaterials();
         } catch (err) {
             // handled
@@ -97,7 +97,6 @@ const MaterialManagement = () => {
       onOk: async () => {
         try {
           await materialService.activateMaterial(material.id);
-          message.success("Kích hoạt thành công");
           loadMaterials();
         } catch (err) {
             // handled
@@ -157,11 +156,12 @@ const MaterialManagement = () => {
       key: 'status',
       width: 120,
       render: (status: number) => {
-        if (status === 1) {
-          return <Tag color="green">Hoạt Động</Tag>;
-        } else {
-          return <Tag color="red">Không Hoạt Động</Tag>;
-        }
+        const statusItem = enumData.dataStatus.get(status);
+        return (
+          <Tag color={status === 1 ? 'green' : 'red'}>
+            {statusItem?.text || 'Không xác định'}
+          </Tag>
+        );
       },
     },
     {

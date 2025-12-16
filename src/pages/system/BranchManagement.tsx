@@ -5,6 +5,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { ReloadOutlined, EditOutlined, StopOutlined, CheckCircleOutlined, PlusOutlined, SearchOutlined, FilterOutlined } from '@ant-design/icons';
 import type { Branch, BranchListRequest } from '@/types';
 import { branchService } from '@/services/branchService';
+import enumData from '@/enums/enums';
 
 const { Search } = Input;
 
@@ -157,12 +158,12 @@ const BranchManagement = () => {
       key: 'status',
       width: 120,
       render: (status: number) => {
-        // DataStatus: 1 = ACTIVE, 0 = INACTIVE
-        if (status === 1) {
-          return <Tag color="green">Hoạt Động</Tag>;
-        } else {
-          return <Tag color="red">Không Hoạt Động</Tag>;
-        }
+        const statusItem = enumData.dataStatus.get(status);
+        return (
+          <Tag color={status === 1 ? 'green' : 'red'}>
+            {statusItem?.text || 'Không xác định'}
+          </Tag>
+        );
       },
     },
     {

@@ -381,53 +381,113 @@ export interface MaterialListResponse {
     totalPages: number;
 }
 
-// Stock Transaction Types
+// Stock Transaction Types (Combined DTO for both IN and OUT)
 export interface StockTransaction {
     id: string;
     transactionCode: string;
     warehouseId: string;
-    warehouseName?: string;
-    materialId: string;
+    warehouseName: string;
+    materialId?: string;
     materialName?: string;
     supplierId?: string;
     supplierName?: string;
-    transactionType: number; // 1: IN, 2: OUT
-    transactionTypeName?: string;
-    quantity: number;
-    unitId: string;
+    transactionType: number; // 1=IN, 2=OUT
+    transactionTypeName: string;
+    quantity?: number;
+    unitId?: string;
     unitName?: string;
-    unitPrice: number;
-    totalAmount: number;
+    unitPrice?: number;
+    totalAmount?: number;
     transactionDate: string;
-    referenceNumber: string;
+    referenceNumber?: string;
     destinationBranchId?: string;
-    notes: string;
+    notes?: string;
     performedBy?: string;
     status: number;
-    createdDate?: string;
+    createdBy?: string;
+    createdDate: string;
+    isLocked: boolean;
+    
+    // Stock In specific
+    stockInItems?: StockInItemDTO[];
+    
+    // Stock Out specific
+    stockOutItems?: StockOutItemDTO[];
+    stockOutType?: number;              // 1=Transfer, 2=Sale, 3=Disposal
+    stockOutTypeName?: string;
+    destinationWarehouseId?: string;    // For INTERNAL_TRANSFER
+    destinationWarehouseName?: string;
+    customerId?: string;                // For RETAIL_SALE
+    customerName?: string;
+    disposalReason?: string;            // For DISPOSAL
+}
+
+// Stock In/Out Item types
+export interface StockInItemRequest {
+    materialId: string;
+    unitId: string;
+    quantity: number;
+    unitPrice: number;
+    notes?: string;
+}
+
+export interface StockOutItemRequest {
+    materialId: string;
+    unitId: string;
+    quantity: number;
+    notes?: string;
+}
+
+export interface StockInItemDTO {
+    id: string;
+    materialId: string;
+    materialName?: string;
+    unitId: string;
+    unitName?: string;
+    quantity: number;
+    unitPrice: number;
+    totalAmount: number;
+    notes?: string;
+}
+
+export interface StockOutItemDTO {
+    id: string;
+    materialId: string;
+    materialName?: string;
+    unitId: string;
+    unitName?: string;
+    quantity: number;
+    unitPrice?: number;
+    totalAmount?: number;
+    notes?: string;
+    batchMappings?: StockOutBatchMappingDTO[];
+}
+
+export interface StockOutBatchMappingDTO {
+    id: string;
+    inventoryLedgerId: string;
+    sourceBatchNumber?: string;
+    quantity: number;
+    unitPrice?: number;
+    totalAmount?: number;
 }
 
 export interface StockInRequest {
     warehouseId: string;
-    materialId: string;
     supplierId: string;
-    quantity: number;
-    unitId: string;
-    unitPrice: number;
     transactionDate: string; // ISO string
     referenceNumber: string;
-    notes: string;
+    notes?: string;
+    items: StockInItemRequest[]; // Danh sách nguyên liệu
 }
 
 export interface StockOutRequest {
     warehouseId: string;
-    materialId: string;
-    quantity: number;
-    unitId: string;
+    destinationBranchId?: string;
     transactionDate: string; // ISO string
     referenceNumber: string;
-    destinationBranchId?: string;
-    notes: string;
+    notes?: string;
+    items: StockOutItemRequest[]; // Danh sách nguyên liệu
 }
 
 export interface StockTransactionListRequest {
@@ -463,6 +523,7 @@ export interface InventoryLedger {
     quantityIn: number;
     quantityOut: number;
     balance: number;
+    remainingQuantity?: number;  // Số lượng còn lại (cho FIFO)
     unitPrice: number;
     totalValue: number;
     inventoryMethod: number;

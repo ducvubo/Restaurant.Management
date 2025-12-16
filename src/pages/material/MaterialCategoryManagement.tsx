@@ -5,6 +5,7 @@ import { PlusOutlined, EditOutlined, SearchOutlined, StopOutlined, CheckCircleOu
 import dayjs from 'dayjs';
 import type { MaterialCategory } from '@/types';
 import { materialCategoryService } from '@/services/materialCategoryService';
+import enumData from '@/enums/enums';
 
 const { confirm } = Modal;
 
@@ -103,11 +104,14 @@ const MaterialCategoryManagement = () => {
       dataIndex: 'status',
       key: 'status',
       width: 150,
-      render: (status: number) => (
-        <Tag color={status === 1 ? 'green' : 'red'}>
-          {status === 1 ? 'Đang hoạt động' : 'Ngưng hoạt động'}
-        </Tag>
-      ),
+      render: (status: number) => {
+        const statusItem = enumData.dataStatus.get(status);
+        return (
+          <Tag color={status === 1 ? 'green' : 'red'}>
+            {statusItem?.text || 'Không xác định'}
+          </Tag>
+        );
+      },
     },
     {
       title: 'Ngày Tạo',

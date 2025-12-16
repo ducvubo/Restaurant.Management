@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, Button, Space, Tag, Card, Modal, Tooltip, Input, Select, message } from 'antd';
+import { Table, Button, Space, Tag, Card, Modal, Tooltip, Input, Select } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { ReloadOutlined, EditOutlined, StopOutlined, CheckCircleOutlined, PlusOutlined, SearchOutlined, FilterOutlined } from '@ant-design/icons';
 import type { Branch, Warehouse, WarehouseListRequest } from '@/types';
 import { warehouseService } from '@/services/warehouseService';
 import { branchService } from '@/services/branchService';
+import enumData from '@/enums/enums';
 
 const { Search } = Input;
 const { Option } = Select;
@@ -98,7 +99,6 @@ const WarehouseManagement = () => {
       onOk: async () => {
         try {
           await warehouseService.deactivateWarehouse(warehouse.id);
-          message.success("Vô hiệu hóa kho thành công");
           loadWarehouses();
         } catch (err) {
           // handled
@@ -116,7 +116,6 @@ const WarehouseManagement = () => {
       onOk: async () => {
         try {
           await warehouseService.activateWarehouse(warehouse.id);
-          message.success("Kích hoạt kho thành công");
           loadWarehouses();
         } catch (err) {
           // handled
@@ -178,11 +177,12 @@ const WarehouseManagement = () => {
       key: 'status',
       width: 120,
       render: (status: number) => {
-        if (status === 1) {
-          return <Tag color="green">Hoạt Động</Tag>;
-        } else {
-          return <Tag color="red">Không Hoạt Động</Tag>;
-        }
+        const statusItem = enumData.dataStatus.get(status);
+        return (
+          <Tag color={status === 1 ? 'green' : 'red'}>
+            {statusItem?.text || 'Không xác định'}
+          </Tag>
+        );
       },
     },
     {

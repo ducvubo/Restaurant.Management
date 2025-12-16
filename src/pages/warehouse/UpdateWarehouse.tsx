@@ -58,7 +58,6 @@ const UpdateWarehouse = () => {
 
       const result = await warehouseService.updateWarehouse(request);
       if (result.success) {
-        message.success('Cập nhật kho thành công');
         navigate('/warehouses');
       } else {
         message.error(result.message || 'Cập nhật thất bại');

@@ -73,11 +73,11 @@ const StockTransactionManagement = () => {
   };
 
   const handleStockIn = () => {
-    navigate('/stock-transactions/in');
+    navigate('/stock-in');
   };
 
   const handleStockOut = () => {
-    navigate('/stock-transactions/out');
+    navigate('/stock-out');
   };
 
   const columns: ColumnsType<StockTransaction> = [

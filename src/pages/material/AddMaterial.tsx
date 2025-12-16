@@ -51,7 +51,6 @@ const AddMaterial = () => {
 
       const result = await materialService.createMaterial(request);
       if (result.success) {
-        message.success('Tạo nguyên vật liệu thành công');
         navigate('/materials');
       } else {
         message.error(result.message || 'Tạo thất bại');

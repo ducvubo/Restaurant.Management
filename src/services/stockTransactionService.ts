@@ -3,11 +3,25 @@ import { API_ENDPOINTS } from '../config/api';
 import type { 
     StockTransaction, 
     StockInRequest, 
-    StockOutRequest, 
     StockTransactionListRequest, 
     StockTransactionListResponse, 
-    ResultMessage 
+    ResultMessage,
+    StockOutItemRequest
 } from '../types';
+
+export interface StockOutRequest {
+  warehouseId: string;
+  destinationBranchId?: string;
+  transactionDate?: string;
+  referenceNumber?: string;
+  notes?: string;
+  items: StockOutItemRequest[];
+  // Stock Out Type fields
+  stockOutType?: number;              // 1=Transfer, 2=Sale, 3=Disposal
+  destinationWarehouseId?: string;    // For INTERNAL_TRANSFER
+  customerId?: string;                // For RETAIL_SALE
+  disposalReason?: string;            // For DISPOSAL
+}
 
 export const stockTransactionService = {
   stockIn: async (data: StockInRequest): Promise<ResultMessage<StockTransaction>> => {
@@ -32,5 +46,19 @@ export const stockTransactionService = {
       params: request,
     });
     return response.data.result;
+  },
+
+  lockTransaction: async (id: string): Promise<ResultMessage<string>> => {
+    const response = await Api.post<ResultMessage<string>>(`${API_ENDPOINTS.STOCK_TRANSACTION_BASE}/lock`, null, {
+      params: { id },
+    });
+    return response.data;
+  },
+
+  unlockTransaction: async (id: string): Promise<ResultMessage<string>> => {
+    const response = await Api.post<ResultMessage<string>>(`${API_ENDPOINTS.STOCK_TRANSACTION_BASE}/unlock`, null, {
+      params: { id },
+    });
+    return response.data;
   },
 };
