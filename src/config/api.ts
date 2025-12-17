@@ -99,6 +99,7 @@ export const API_ENDPOINTS = {
   INVENTORY_LEDGER_AVAILABLE_STOCK: '/management/inventory-ledger/available-stock',
 
   // Adjustment Management
+  ADJUSTMENT_BASE: '/management/adjustments',
   ADJUSTMENT_LIST: '/management/adjustments/list',
   ADJUSTMENT_GET: '/management/adjustments/get',
   ADJUSTMENT_CREATE: '/management/adjustments',

@@ -78,4 +78,37 @@ export const stockTransactionService = {
     });
     return response.data.result;
   },
+
+  exportPdf: async (id: string): Promise<void> => {
+    const response = await Api.get(`${API_ENDPOINTS.STOCK_TRANSACTION_BASE}/export-pdf`, {
+      params: { id },
+      responseType: 'blob'
+    });
+    
+    // Create blob from response
+    const blob = new Blob([response.data], { type: 'application/pdf' });
+    
+    // Create download link
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    
+    // Extract filename from content-disposition header or use default
+    const contentDisposition = response.headers['content-disposition'];
+    let filename = 'Phieu_Stock.pdf';
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
+      if (filenameMatch && filenameMatch[1]) {
+        filename = filenameMatch[1];
+      }
+    }
+    
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    
+    // Cleanup
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  },
 };

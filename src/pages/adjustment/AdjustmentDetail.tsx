@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, Descriptions, Table, Button, Space, Tag, message, Tabs, Spin } from 'antd';
-import { ArrowLeftOutlined, LockOutlined, EditOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, LockOutlined, EditOutlined, FilePdfOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { adjustmentService } from '@/services/adjustmentService';
 import enums from '@/enums';
@@ -12,6 +12,7 @@ const AdjustmentDetail = () => {
   const [data, setData] = useState<any>(null);
   const [previewData, setPreviewData] = useState<any>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('materials');
 
   useEffect(() => {
@@ -51,6 +52,18 @@ const AdjustmentDetail = () => {
       message.error(error.message || 'Lỗi khi tải preview');
     } finally {
       setPreviewLoading(false);
+    }
+  };
+
+  const handleExportPdf = async () => {
+    if (!id) return;
+    setPdfLoading(true);
+    try {
+      await adjustmentService.exportPdf(id);
+    } catch (error: any) {
+      message.error(error.message || 'Lỗi khi xuất PDF');
+    } finally {
+      setPdfLoading(false);
     }
   };
 
@@ -105,6 +118,14 @@ const AdjustmentDetail = () => {
               onClick={() => navigate('/adjustment')}
             >
               Quay Lại
+            </Button>
+            <Button
+              type="default"
+              icon={<FilePdfOutlined />}
+              onClick={handleExportPdf}
+              loading={pdfLoading}
+            >
+              Xuất PDF
             </Button>
             {!data.isLocked && (
               <>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Card, Button, Space, Descriptions, Table, Tag, Modal, Spin, Alert, Tabs } from 'antd';
-import { ArrowLeftOutlined, EditOutlined, LockOutlined } from '@ant-design/icons';
+import { Card, Button, Space, Descriptions, Table, Tag, Modal, Spin, Alert, Tabs, message } from 'antd';
+import { ArrowLeftOutlined, EditOutlined, LockOutlined, FilePdfOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { stockTransactionService } from '@/services/stockTransactionService';
 import { inventoryLedgerService } from '@/services/inventoryLedgerService';
@@ -18,6 +18,7 @@ const StockOutDetail = () => {
   const [activeTab, setActiveTab] = useState('info');
   const [previewData, setPreviewData] = useState<any>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -84,6 +85,18 @@ const StockOutDetail = () => {
     navigate(`/stock-out/edit/${id}`);
   };
 
+  const handleExportPdf = async () => {
+    if (!id) return;
+    setPdfLoading(true);
+    try {
+      await stockTransactionService.exportPdf(id);
+    } catch (error: any) {
+      message.error(error.message || 'Lỗi khi xuất PDF');
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
   const loadPreview = async () => {
     if (!id) return;
     
@@ -119,7 +132,7 @@ const StockOutDetail = () => {
     return (
       <Card>
         <Alert
-          message="Lỗi"
+          title="Lỗi"
           description={error || 'Không tìm thấy phiếu xuất'}
           type="error"
           showIcon
@@ -189,7 +202,7 @@ const StockOutDetail = () => {
 
   return (
     <div>
-      <Card bodyStyle={{ padding: '16px' }}>
+      <Card styles={{ body: { padding: '16px' } }}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-bold m-0">Phiếu Xuất Kho #{transaction.transactionCode}</h1>
@@ -200,6 +213,14 @@ const StockOutDetail = () => {
           <Space>
             <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/stock-out')}>
               Quay Lại
+            </Button>
+            <Button
+              type="default"
+              icon={<FilePdfOutlined />}
+              onClick={handleExportPdf}
+              loading={pdfLoading}
+            >
+              Xuất PDF
             </Button>
             {!isLocked && (
               <>
