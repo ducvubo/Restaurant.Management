@@ -391,6 +391,14 @@ export interface StockTransaction {
     materialName?: string;
     supplierId?: string;
     supplierName?: string;
+    
+    // Stock In specific fields
+    stockInType?: number;               // 1=External, 2=Internal Transfer
+    stockInTypeName?: string;
+    relatedTransactionId?: string;      // Link to source stock-out
+    relatedTransactionCode?: string;
+    
+    // Stock Out specific fields
     transactionType: number; // 1=IN, 2=OUT
     transactionTypeName: string;
     quantity?: number;

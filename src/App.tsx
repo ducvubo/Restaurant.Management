@@ -44,6 +44,9 @@ import StockInDetail from './pages/stock/StockInDetail';
 import StockOut from './pages/stock/StockOut';
 import StockOutDetail from './pages/stock/StockOutDetail';
 import InventoryLedgerManagement from './pages/stock/InventoryLedgerManagement';
+import AdjustmentManagement from './pages/adjustment/AdjustmentManagement';
+import AdjustmentForm from './pages/adjustment/AdjustmentForm';
+import AdjustmentDetail from './pages/adjustment/AdjustmentDetail';
 import { authService } from './services/authService';
 import { setNotificationApi } from './services/notificationService';
 
@@ -147,6 +150,11 @@ function AppContent() {
           <Route path="stock-transactions/in" element={<StockIn />} />
           <Route path="stock-transactions/out" element={<StockOut />} />
           <Route path="inventory-ledger" element={<InventoryLedgerManagement />} />
+          
+          <Route path="adjustment" element={<AdjustmentManagement />} />
+          <Route path="adjustment/add" element={<AdjustmentForm />} />
+          <Route path="adjustment/:id" element={<AdjustmentDetail />} />
+          <Route path="adjustment/edit/:id" element={<AdjustmentForm />} />
         </Route>
       </Routes>
     </BrowserRouter>

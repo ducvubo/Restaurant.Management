@@ -24,6 +24,8 @@ export interface Enums {
   readonly transactionType: TransactionTypeEnumCategory;
   readonly warehouseType: WarehouseTypeEnumCategory;
   readonly stockOutType: StockOutTypeEnumCategory;
+  readonly stockInType: StockInTypeEnumCategory;
+  readonly adjustmentType: AdjustmentTypeEnumCategory;
 }
 
 export interface DataStatusEnumCategory extends EnumCategory {
@@ -83,6 +85,20 @@ export interface StockOutTypeEnumCategory extends EnumCategory {
 }
 
 export type StockOutTypeValue = 1 | 2 | 3;
+
+export interface StockInTypeEnumCategory extends EnumCategory {
+  readonly EXTERNAL: EnumItem;
+  readonly INTERNAL_TRANSFER: EnumItem;
+}
+
+export type StockInTypeValue = 1 | 2;
+
+export interface AdjustmentTypeEnumCategory extends EnumCategory {
+  readonly INCREASE: EnumItem;
+  readonly DECREASE: EnumItem;
+}
+
+export type AdjustmentTypeValue = 1 | 2;
 
 const enumsData = {
   dataStatus: {
@@ -279,6 +295,42 @@ const enumsData = {
       member: "DISPOSAL",
       name: "",
       text: "Tiêu hủy",
+      class: "",
+      guidId: ""
+    },
+  },
+  stockInType: {
+    EXTERNAL: {
+      value: 1,
+      member: "EXTERNAL",
+      name: "",
+      text: "Nhập từ nhà cung cấp",
+      class: "",
+      guidId: ""
+    },
+    INTERNAL_TRANSFER: {
+      value: 2,
+      member: "INTERNAL_TRANSFER",
+      name: "",
+      text: "Chuyển kho nội bộ",
+      class: "",
+      guidId: ""
+    },
+  },
+  adjustmentType: {
+    INCREASE: {
+      value: 1,
+      member: "INCREASE",
+      name: "",
+      text: "Điều chỉnh tăng",
+      class: "",
+      guidId: ""
+    },
+    DECREASE: {
+      value: 2,
+      member: "DECREASE",
+      name: "",
+      text: "Điều chỉnh giảm",
       class: "",
       guidId: ""
     },

@@ -95,6 +95,11 @@ const Layout = () => {
         label: <span className="font-semibold">Sổ Cái Tồn Kho</span>,
       },
       {
+        key: '/adjustment',
+        icon: <SwapOutlined />,
+        label: <span className="font-semibold">Điều Chỉnh Kho</span>,
+      },
+      {
         key: '/units',
         icon: <AppstoreOutlined />,
         label: <span className="font-semibold">Đơn Vị Tính</span>,

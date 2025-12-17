@@ -97,4 +97,18 @@ export const API_ENDPOINTS = {
   INVENTORY_LEDGER_GET: '/management/inventory-ledger/get',
   INVENTORY_LEDGER_CURRENT_STOCK: '/management/inventory-ledger/current-stock',
   INVENTORY_LEDGER_AVAILABLE_STOCK: '/management/inventory-ledger/available-stock',
+
+  // Adjustment Management
+  ADJUSTMENT_LIST: '/management/adjustments/list',
+  ADJUSTMENT_GET: '/management/adjustments/get',
+  ADJUSTMENT_CREATE: '/management/adjustments',
+  ADJUSTMENT_UPDATE: '/management/adjustments',
+  ADJUSTMENT_DELETE: '/management/adjustments',
+  ADJUSTMENT_LOCK: '/management/adjustments/lock',
+  ADJUSTMENT_UNLOCK: '/management/adjustments/unlock',
+  ADJUSTMENT_PREVIEW_LEDGER: '/management/adjustments/preview-ledger',
+
+  // Inventory Ledger
+  INVENTORY_CURRENT_STOCK: '/management/inventory-ledger/current-stock',
+  INVENTORY_AVAILABLE_STOCK: '/management/inventory-ledger/available-stock',
 } as const;

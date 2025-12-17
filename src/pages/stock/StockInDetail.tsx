@@ -189,6 +189,25 @@ const StockInDetail = () => {
         <Descriptions bordered column={2} size="small" style={{ marginBottom: 16 }}>
           <Descriptions.Item label="Kho Nhập">{transaction.warehouseName}</Descriptions.Item>
           <Descriptions.Item label="Nhà Cung Cấp">{transaction.supplierName || '-'}</Descriptions.Item>
+          <Descriptions.Item label="Loại Nhập">
+            {transaction.stockInType === 2 ? (
+              <Tag color="blue">Chuyển kho nội bộ</Tag>
+            ) : (
+              <Tag color="green">Nhập từ NCC</Tag>
+            )}
+          </Descriptions.Item>
+          {transaction.stockInType === 2 && transaction.relatedTransactionCode && (
+            <Descriptions.Item label="Từ Phiếu Xuất">
+              <a 
+                href={`/stock-out/${transaction.relatedTransactionId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#1890ff' }}
+              >
+                {transaction.relatedTransactionCode}
+              </a>
+            </Descriptions.Item>
+          )}
           <Descriptions.Item label="Ngày Nhập">
             {transaction.transactionDate ? dayjs(transaction.transactionDate).format('DD/MM/YYYY HH:mm') : '-'}
           </Descriptions.Item>
@@ -235,9 +254,9 @@ const StockInDetail = () => {
                           key: 'materialName',
                         },
                         {
-                          title: 'Batch Code',
-                          key: 'batchCode',
-                          render: (record: any) => record.batches?.[0]?.batchCode || '-',
+                          title: 'Batch (Phiếu Nhập)',
+                          key: 'batchNumber',
+                          render: (record: any) => record.batches?.[0]?.batchNumber || '-',
                         },
                         {
                           title: 'Số Lượng',

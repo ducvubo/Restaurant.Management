@@ -1,14 +1,27 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Table, Button, Space, Tag } from 'antd';
+import { Card, Table, Button, Space, Tag, message } from 'antd';
 import { PlusOutlined, EyeOutlined, LockOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import type { StockTransaction } from '@/types';
-import { stockTransactionService } from '@/services/stockTransactionService';
+import { adjustmentService } from '@/services/adjustmentService';
+import enums from '@/enums';
 
-const StockInManagement = () => {
+interface AdjustmentTransaction {
+  id: string;
+  transactionCode: string;
+  warehouseId: string;
+  warehouseName: string;
+  adjustmentType: number;
+  adjustmentTypeName: string;
+  transactionDate: string;
+  reason: string;
+  totalAmount: number;
+  isLocked: boolean;
+}
+
+const AdjustmentManagement = () => {
   const navigate = useNavigate();
-  const [data, setData] = useState<StockTransaction[]>([]);
+  const [data, setData] = useState<AdjustmentTransaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
 
@@ -19,15 +32,11 @@ const StockInManagement = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const result = await stockTransactionService.getList({
-        page: pagination.current,
-        size: pagination.pageSize,
-        transactionType: 1, // STOCK_IN = 1
-      });
-      setData(result.items);
-      setPagination(prev => ({ ...prev, total: result.total }));
+      const result = await adjustmentService.list(pagination.current, pagination.pageSize);
+      setData(result.items || []);
+      setPagination(prev => ({ ...prev, total: result.total || 0 }));
     } catch (error) {
-      console.error(error);
+      message.error('Lỗi khi tải danh sách');
     } finally {
       setLoading(false);
     }
@@ -35,86 +44,84 @@ const StockInManagement = () => {
 
   const handleLock = async (id: string) => {
     try {
-      await stockTransactionService.lockTransaction(id);
+      await adjustmentService.lock(id);
       loadData();
     } catch (error: any) {
-      console.error('Lock transaction error:', error);
+      message.error(error.message || 'Lỗi khi chốt phiếu');
     }
   };
+
+
 
   const columns = [
     {
       title: 'Mã Phiếu',
       dataIndex: 'transactionCode',
       key: 'transactionCode',
-      width: 150,
+      width: 130,
     },
     {
       title: 'Kho',
       dataIndex: 'warehouseName',
       key: 'warehouseName',
-      width: 150,
+      width: 120,
     },
     {
-      title: 'Nhà Cung Cấp',
-      dataIndex: 'supplierName',
-      key: 'supplierName',
-      width: 200,
-    },
-    {
-      title: 'Loại Nhập',
-      dataIndex: 'stockInType',
-      key: 'stockInType',
-      width: 150,
+      title: 'Loại',
+      dataIndex: 'adjustmentType',
+      key: 'adjustmentType',
+      width: 110,
       render: (type: number) => {
-        if (type === 2) {
-          return <Tag color="blue">Chuyển kho nội bộ</Tag>;
+        if (type === enums.adjustmentType.INCREASE.value) {
+          return <Tag color="green">Tăng</Tag>;
         }
-        return <Tag color="green">Nhập từ NCC</Tag>;
+        return <Tag color="orange">Giảm</Tag>;
       },
     },
     {
-      title: 'Ngày Nhập',
+      title: 'Lý Do',
+      dataIndex: 'reason',
+      key: 'reason',
+      ellipsis: true,
+    },
+    {
+      title: 'Ngày',
       dataIndex: 'transactionDate',
       key: 'transactionDate',
-      width: 150,
+      width: 140,
       render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm'),
     },
     {
-      title: 'Tổng Tiền',
-      dataIndex: 'totalAmount',
-      key: 'totalAmount',
-      width: 150,
-      render: (amount: number) => `${amount?.toLocaleString('vi-VN') || 0} đ`,
-    },
-    {
-      title: 'Trạng Thái',
+      title: 'TT',
       key: 'isLocked',
-      width: 120,
-      render: (_: any, record: StockTransaction) => (
+      width: 90,
+      render: (_: any, record: AdjustmentTransaction) => (
         record.isLocked ? (
-          <Tag color="red">Đã Chốt</Tag>
+          <Tag color="red">Chốt</Tag>
         ) : (
-          <Tag color="green">Chưa Chốt</Tag>
+          <Tag color="green">Nháp</Tag>
         )
       ),
     },
     {
-      title: 'Thao Tác',
+      title: '',
       key: 'action',
-      width: 150,
-      render: (_: any, record: StockTransaction) => (
+      fixed: 'right' as const,
+      width: 180,
+      render: (_: any, record: AdjustmentTransaction) => (
         <Space>
           <Button
             type="link"
+            size="small"
             icon={<EyeOutlined />}
-            onClick={() => navigate(`/stock-in/${record.id}`)}
+            onClick={() => navigate(`/adjustment/${record.id}`)}
           >
             Xem
           </Button>
           {!record.isLocked && (
             <Button
               type="link"
+              size="small"
               icon={<LockOutlined />}
               onClick={() => handleLock(record.id)}
             >
@@ -130,13 +137,13 @@ const StockInManagement = () => {
     <div>
       <Card bodyStyle={{ padding: '16px' }}>
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold m-0">Quản Lý Phiếu Nhập Kho</h1>
+          <h1 className="text-xl font-bold m-0">Quản Lý Phiếu Điều Chỉnh Kho</h1>
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            onClick={() => navigate('/stock-in/add')}
+            onClick={() => navigate('/adjustment/add')}
           >
-            Tạo Phiếu Nhập
+            Tạo Phiếu Điều Chỉnh
           </Button>
         </div>
 
@@ -152,14 +159,13 @@ const StockInManagement = () => {
             showSizeChanger: true,
             showTotal: (total) => `Tổng ${total} phiếu`,
             onChange: (page, pageSize) => {
-              setPagination(prev => ({ ...prev, current: page, pageSize }));
+              setPagination(prev => ({ ...prev, current: page, pageSize: pageSize || 10 }));
             },
           }}
-          scroll={{ x: 1000 }}
         />
       </Card>
     </div>
   );
 };
 
-export default StockInManagement;
+export default AdjustmentManagement;

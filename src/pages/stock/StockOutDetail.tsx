@@ -276,8 +276,8 @@ const StockOutDetail = () => {
                           columns={[
                             {
                               title: 'Batch (Phiếu Nhập)',
-                              dataIndex: 'batchCode',
-                              key: 'batchCode',
+                              dataIndex: 'batchNumber',
+                              key: 'batchNumber',
                               width: 150,
                             },
                             {
