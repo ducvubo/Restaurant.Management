@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Form, Input, Select, Button, Card, message, DatePicker, Table, InputNumber, Space } from 'antd';
+import { Form, Input, Select, Button, Card, message, DatePicker, Table, InputNumber, Space, Row, Col } from 'antd';
 import { PlusOutlined, DeleteOutlined, SaveOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { adjustmentService } from '@/services/adjustmentService';
@@ -359,61 +359,91 @@ const AdjustmentForm = () => {
             transactionDate: dayjs(),
           }}
         >
-          <div className="grid grid-cols-2 gap-3">
-            <Form.Item
-              label="Kho"
-              name="warehouseId"
-              rules={[{ required: true, message: 'Vui lòng chọn kho' }]}
-            >
-              <Select 
-                placeholder="Chọn kho"
-                onChange={handleWarehouseChange}
+          <Row gutter={16}>
+            <Col xs={24} sm={12}>
+              <Form.Item
+                label="Kho"
+                name="warehouseId"
+                rules={[{ required: true, message: 'Vui lòng chọn kho' }]}
+                style={{ marginBottom: '12px' }}
               >
-                {warehouses.map(w => (
-                  <Option key={w.id} value={w.id}>{w.name}</Option>
-                ))}
-              </Select>
-            </Form.Item>
+                <Select 
+                  placeholder="Chọn kho"
+                  onChange={handleWarehouseChange}
+                >
+                  {warehouses.map(w => (
+                    <Option key={w.id} value={w.id}>{w.name}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
 
-            <Form.Item
-              label="Loại Điều Chỉnh"
-              name="adjustmentType"
-              rules={[{ required: true, message: 'Vui lòng chọn loại điều chỉnh' }]}
-            >
-              <Select placeholder="Chọn loại">
-                <Option value={enums.adjustmentType.INCREASE.value}>
-                  {enums.adjustmentType.INCREASE.text}
-                </Option>
-                <Option value={enums.adjustmentType.DECREASE.value}>
-                  {enums.adjustmentType.DECREASE.text}
-                </Option>
-              </Select>
-            </Form.Item>
+            <Col xs={24} sm={12}>
+              <Form.Item
+                label="Loại Điều Chỉnh"
+                name="adjustmentType"
+                rules={[{ required: true, message: 'Vui lòng chọn loại điều chỉnh' }]}
+                style={{ marginBottom: '12px' }}
+              >
+                <Select placeholder="Chọn loại">
+                  <Option value={enums.adjustmentType.INCREASE.value}>
+                    {enums.adjustmentType.INCREASE.text}
+                  </Option>
+                  <Option value={enums.adjustmentType.DECREASE.value}>
+                    {enums.adjustmentType.DECREASE.text}
+                  </Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
 
-            <Form.Item
-              label="Ngày Điều Chỉnh"
-              name="transactionDate"
-              rules={[{ required: true, message: 'Vui lòng chọn ngày' }]}
-            >
-              <DatePicker showTime style={{ width: '100%' }} format="DD/MM/YYYY HH:mm" />
-            </Form.Item>
+          <Row gutter={16}>
+            <Col xs={24} sm={12}>
+              <Form.Item
+                label="Ngày Điều Chỉnh"
+                name="transactionDate"
+                rules={[{ required: true, message: 'Vui lòng chọn ngày' }]}
+                style={{ marginBottom: '12px' }}
+              >
+                <DatePicker showTime style={{ width: '100%' }} format="DD/MM/YYYY HH:mm" />
+              </Form.Item>
+            </Col>
 
-            <Form.Item label="Số Tham Chiếu" name="referenceNumber">
-              <Input placeholder="Nhập số tham chiếu" />
-            </Form.Item>
-          </div>
+            <Col xs={24} sm={12}>
+              <Form.Item 
+                label="Số Tham Chiếu" 
+                name="referenceNumber"
+                style={{ marginBottom: '12px' }}
+              >
+                <Input placeholder="Nhập số tham chiếu" />
+              </Form.Item>
+            </Col>
+          </Row>
 
-          <Form.Item
-            label="Lý Do Điều Chỉnh"
-            name="reason"
-            rules={[{ required: true, message: 'Vui lòng nhập lý do' }]}
-          >
-            <TextArea rows={2} placeholder="Nhập lý do điều chỉnh (bắt buộc)" />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col xs={24}>
+              <Form.Item
+                label="Lý Do Điều Chỉnh"
+                name="reason"
+                rules={[{ required: true, message: 'Vui lòng nhập lý do' }]}
+                style={{ marginBottom: '12px' }}
+              >
+                <TextArea rows={2} placeholder="Nhập lý do điều chỉnh (bắt buộc)" />
+              </Form.Item>
+            </Col>
+          </Row>
 
-          <Form.Item label="Ghi Chú" name="notes">
-            <TextArea rows={2} placeholder="Nhập ghi chú" />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col xs={24}>
+              <Form.Item 
+                label="Ghi Chú" 
+                name="notes"
+                style={{ marginBottom: '12px' }}
+              >
+                <TextArea rows={2} placeholder="Nhập ghi chú" />
+              </Form.Item>
+            </Col>
+          </Row>
 
           <div className="mb-3">
             <div className="flex justify-between items-center mb-2">

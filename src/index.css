@@ -133,20 +133,28 @@ code {
   content: none !important;
 }
 
-/* Đảm bảo menu chiếm hết chiều cao */
-.ant-layout-sider {
-  height: 100vh !important;
-  overflow-y: auto;
-}
-
-.ant-menu {
-  height: calc(100vh - 55px) !important;
-}
-
-/* Hide scrollbar in menu and submenu */
-.ant-menu,
-.ant-menu-sub,
-.ant-menu-inline {
-  overflow-y: hidden !important;
+/* Menu styling - scrolling handled by wrapper div in Layout.tsx */
+.menu-scroll-wrapper {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto !important;
   overflow-x: hidden !important;
+}
+
+.menu-scroll-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.menu-scroll-wrapper::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.menu-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Allow submenu to expand naturally without its own scroll */
+.ant-menu-sub.ant-menu-inline {
+  max-height: none !important;
 }

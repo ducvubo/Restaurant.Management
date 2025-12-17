@@ -58,7 +58,7 @@ const AdjustmentManagement = () => {
       title: 'Mã Phiếu',
       dataIndex: 'transactionCode',
       key: 'transactionCode',
-      width: 130,
+      width: 170,
     },
     {
       title: 'Kho',

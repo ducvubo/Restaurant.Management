@@ -137,25 +137,29 @@ const Layout = () => {
         trigger={null}
         style={{ 
           backgroundColor: '#ffffff',
-          overflow: 'auto',
           height: '100vh',
           position: 'fixed',
           left: 0,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
         }}
         theme="light"
       >
-        <div className="h-[55px] flex items-center justify-center" style={{ backgroundColor: '#2e4baa', borderColor: '#e5e7eb' }}>
+        <div className="h-[55px] flex items-center justify-center" style={{ backgroundColor: '#2e4baa', borderColor: '#e5e7eb', flexShrink: 0 }}>
           {!collapsed && <h2 className="text-xl font-bold m-0" style={{ color: '#ffffff' }}>Quản Lý Nhà Hàng</h2>}
         </div>
-        <Menu
-          theme="light"
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          items={menuItems}
-          onClick={({ key }) => navigate(key)}
-          className="border-r-0"
-          style={{ borderRight: 0 }}
-        />
+        <div className="menu-scroll-wrapper" style={{ height: 'calc(100vh - 55px)', minHeight: 0, overflowY: 'auto', overflowX: 'hidden' }}>
+          <Menu
+            theme="light"
+            mode="inline"
+            selectedKeys={[location.pathname]}
+            items={menuItems}
+            onClick={({ key }) => navigate(key)}
+            className="border-r-0"
+            style={{ borderRight: 0 }}
+          />
+        </div>
       </Sider>
       <AntLayout style={{ marginLeft: collapsed ? 80 : 250, transition: 'margin-left 0.2s' }}>
         <Header className="flex items-center justify-between sticky top-0 z-50" style={{ backgroundColor: '#2e4baa', color: '#ffffff', height: '55px', lineHeight: '48px', padding: '0 24px' }}>
