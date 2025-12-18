@@ -100,6 +100,11 @@ const Layout = () => {
         label: <span className="font-semibold">Điều Chỉnh Kho</span>,
       },
       {
+        key: '/inventory-count',
+        icon: <ReadOutlined />,
+        label: <span className="font-semibold">Kiểm Kê Kho</span>,
+      },
+      {
         key: '/units',
         icon: <AppstoreOutlined />,
         label: <span className="font-semibold">Đơn Vị Tính</span>,

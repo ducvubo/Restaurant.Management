@@ -13,6 +13,7 @@ interface AdjustmentTransaction {
   warehouseName: string;
   adjustmentType: number;
   adjustmentTypeName: string;
+  adjustmentSource?: number; // 1=Manual, 2=InventoryCount
   transactionDate: string;
   reason: string;
   totalAmount: number;
@@ -70,12 +71,30 @@ const AdjustmentManagement = () => {
       title: 'Loại',
       dataIndex: 'adjustmentType',
       key: 'adjustmentType',
-      width: 110,
+      width: 130,
       render: (type: number) => {
         if (type === enums.adjustmentType.INCREASE.value) {
-          return <Tag color="green">Tăng</Tag>;
+          return <Tag color="green">{enums.adjustmentType.INCREASE.text}</Tag>;
         }
-        return <Tag color="orange">Giảm</Tag>;
+        if (type === enums.adjustmentType.DECREASE.value) {
+          return <Tag color="orange">{enums.adjustmentType.DECREASE.text}</Tag>;
+        }
+        if (type === enums.adjustmentType.INVENTORY_COUNT.value) {
+          return <Tag color="blue">{enums.adjustmentType.INVENTORY_COUNT.text}</Tag>;
+        }
+        return <Tag>{type}</Tag>;
+      },
+    },
+    {
+      title: 'Nguồn',
+      dataIndex: 'adjustmentSource',
+      key: 'adjustmentSource',
+      width: 100,
+      render: (source: number) => {
+        if (source === 2) {
+          return <Tag color="blue" icon={<span>🔍</span>}>Kiểm kê</Tag>;
+        }
+        return <Tag icon={<span>✏️</span>}>Thủ công</Tag>;
       },
     },
     {
@@ -135,7 +154,7 @@ const AdjustmentManagement = () => {
 
   return (
     <div>
-      <Card bodyStyle={{ padding: '16px' }}>
+      <Card styles={{ body: { padding: '16px' } }}>
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-bold m-0">Quản Lý Phiếu Điều Chỉnh Kho</h1>
           <Button

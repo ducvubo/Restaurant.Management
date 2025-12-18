@@ -112,4 +112,16 @@ export const API_ENDPOINTS = {
   // Inventory Ledger
   INVENTORY_CURRENT_STOCK: '/management/inventory-ledger/current-stock',
   INVENTORY_AVAILABLE_STOCK: '/management/inventory-ledger/available-stock',
+
+  // Inventory Count Management
+  INVENTORY_COUNT: {
+    CREATE: '/management/inventory-counts',
+    UPDATE: '/management/inventory-counts',
+    GET: '/management/inventory-counts/get',
+    LIST: '/management/inventory-counts/list',
+    DELETE: '/management/inventory-counts',
+    LOAD_BATCHES: '/management/inventory-counts/load-batches',
+    COMPLETE: '/management/inventory-counts/complete',
+    CANCEL: '/management/inventory-counts/cancel',
+  },
 } as const;

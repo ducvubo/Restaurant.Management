@@ -96,9 +96,10 @@ export type StockInTypeValue = 1 | 2;
 export interface AdjustmentTypeEnumCategory extends EnumCategory {
   readonly INCREASE: EnumItem;
   readonly DECREASE: EnumItem;
+  readonly INVENTORY_COUNT: EnumItem;
 }
 
-export type AdjustmentTypeValue = 1 | 2;
+export type AdjustmentTypeValue = 1 | 2 | 3;
 
 const enumsData = {
   dataStatus: {
@@ -331,6 +332,14 @@ const enumsData = {
       member: "DECREASE",
       name: "",
       text: "Điều chỉnh giảm",
+      class: "",
+      guidId: ""
+    },
+    INVENTORY_COUNT: {
+      value: 3,
+      member: "INVENTORY_COUNT",
+      name: "",
+      text: "Kiểm kê kho",
       class: "",
       guidId: ""
     },

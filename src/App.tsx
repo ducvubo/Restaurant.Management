@@ -47,6 +47,10 @@ import InventoryLedgerManagement from './pages/stock/InventoryLedgerManagement';
 import AdjustmentManagement from './pages/adjustment/AdjustmentManagement';
 import AdjustmentForm from './pages/adjustment/AdjustmentForm';
 import AdjustmentDetail from './pages/adjustment/AdjustmentDetail';
+// Inventory Count
+import InventoryCountManagement from './pages/inventorycount/InventoryCountManagement';
+import InventoryCountForm from './pages/inventorycount/InventoryCountForm';
+import InventoryCountDetail from './pages/inventorycount/InventoryCountDetail';
 import { authService } from './services/authService';
 import { setNotificationApi } from './services/notificationService';
 
@@ -155,6 +159,11 @@ function AppContent() {
           <Route path="adjustment/add" element={<AdjustmentForm />} />
           <Route path="adjustment/:id" element={<AdjustmentDetail />} />
           <Route path="adjustment/edit/:id" element={<AdjustmentForm />} />
+          
+          <Route path="inventory-count" element={<InventoryCountManagement />} />
+          <Route path="inventory-count/add" element={<InventoryCountForm />} />
+          <Route path="inventory-count/:id" element={<InventoryCountDetail />} />
+          <Route path="inventory-count/edit/:id" element={<InventoryCountForm />} />
         </Route>
       </Routes>
     </BrowserRouter>

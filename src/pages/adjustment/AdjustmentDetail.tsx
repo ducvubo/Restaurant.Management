@@ -77,12 +77,23 @@ const AdjustmentDetail = () => {
   }, [activeTab, data?.isLocked, id]);
 
 
+  // Check if any item has batch info (from inventory count)
+  const hasBatchInfo = data?.items?.some((item: any) => item.inventoryLedgerId);
+
   const columns = [
     {
       title: 'Nguyên Liệu',
       dataIndex: 'materialName',
       key: 'materialName',
     },
+    ...(hasBatchInfo ? [
+      {
+        title: 'Số Lô',
+        dataIndex: 'batchNumber',
+        key: 'batchNumber',
+        width: 150,
+      },
+    ] : []),
     {
       title: 'Đơn Vị',
       dataIndex: 'unitName',
@@ -109,7 +120,7 @@ const AdjustmentDetail = () => {
 
   return (
     <div>
-      <Card bodyStyle={{ padding: '12px' }}>
+      <Card styles={{ body: { padding: '12px' } }}>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-xl font-bold m-0">Chi Tiết Phiếu Điều Chỉnh</h2>
           <Space>
@@ -163,12 +174,34 @@ const AdjustmentDetail = () => {
             {data.warehouseName}
           </Descriptions.Item>
           <Descriptions.Item label="Loại Điều Chỉnh">
-            {data.adjustmentType === enums.adjustmentType.INCREASE.value ? (
-              <Tag color="green">Tăng</Tag>
-            ) : (
-              <Tag color="orange">Giảm</Tag>
+            {data.adjustmentType === enums.adjustmentType.INCREASE.value && (
+              <Tag color="green">{enums.adjustmentType.INCREASE.text}</Tag>
+            )}
+            {data.adjustmentType === enums.adjustmentType.DECREASE.value && (
+              <Tag color="orange">{enums.adjustmentType.DECREASE.text}</Tag>
+            )}
+            {data.adjustmentType === enums.adjustmentType.INVENTORY_COUNT.value && (
+              <Tag color="blue">{enums.adjustmentType.INVENTORY_COUNT.text}</Tag>
             )}
           </Descriptions.Item>
+          <Descriptions.Item label="Nguồn">
+            {data.adjustmentSource === 2 ? (
+              <Tag color="blue" icon={<span>🔍</span>}>Từ Kiểm Kê</Tag>
+            ) : (
+              <Tag icon={<span>✏️</span>}>Thủ Công</Tag>
+            )}
+          </Descriptions.Item>
+          {data.inventoryCountId && (
+            <Descriptions.Item label="Phiếu Kiểm Kê" span={2}>
+              <Button
+                type="link"
+                size="small"
+                onClick={() => navigate(`/inventory-count/${data.inventoryCountId}`)}
+              >
+                {data.inventoryCountCode || 'Xem phiếu kiểm kê'}
+              </Button>
+            </Descriptions.Item>
+          )}
           <Descriptions.Item label="Ngày Điều Chỉnh">
             {dayjs(data.transactionDate).format('DD/MM/YYYY HH:mm')}
           </Descriptions.Item>

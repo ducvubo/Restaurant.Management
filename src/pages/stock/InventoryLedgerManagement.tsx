@@ -147,6 +147,12 @@ const InventoryLedgerManagement = () => {
       render: (val) => <strong>{val || 0}</strong>,
     },
     {
+      title: 'Đơn Vị',
+      dataIndex: 'unitName',
+      key: 'unitName',
+      width: 80,
+    },
+    {
       title: 'Đơn Giá',
       dataIndex: 'unitPrice',
       key: 'unitPrice',
