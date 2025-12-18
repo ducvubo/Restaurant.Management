@@ -63,8 +63,24 @@ export const customerService = {
   /**
    * Get all customers
    */
-  getList: async (): Promise<{ items: Customer[]; total: number }> => {
-    const response = await Api.get(API_ENDPOINTS.CUSTOMER_LIST);
+  getList: async (
+    page?: number,
+    size?: number,
+    sortBy?: string,
+    sortDirection?: string,
+    keyword?: string,
+    status?: number
+  ): Promise<{ items: Customer[]; total: number; page: number; size: number; totalPages: number }> => {
+    const response = await Api.get(API_ENDPOINTS.CUSTOMER_LIST, {
+      params: {
+        page,
+        size,
+        sortBy,
+        sortDirection,
+        keyword,
+        status,
+      },
+    });
     return response.data.result;
   },
 

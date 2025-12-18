@@ -10,16 +10,26 @@ const CustomerManagement = () => {
   const navigate = useNavigate();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
 
   useEffect(() => {
-    loadCustomers();
+    loadCustomers(pagination.current, pagination.pageSize);
   }, []);
 
-  const loadCustomers = async () => {
+  const loadCustomers = async (page: number, size: number) => {
     try {
       setLoading(true);
-      const data = await customerService.getList();
+      const data = await customerService.getList(page, size);
       setCustomers(data.items);
+      setPagination({
+        current: data.page,
+        pageSize: data.size,
+        total: data.total,
+      });
     } catch (err) {
       // handled by baseHttp
     } finally {
@@ -44,7 +54,7 @@ const CustomerManagement = () => {
       onOk: async () => {
         try {
           await customerService.deactivate(customer.id);
-          loadCustomers();
+          loadCustomers(pagination.current, pagination.pageSize);
         } catch (err) {
           // handled
         }
@@ -61,12 +71,16 @@ const CustomerManagement = () => {
       onOk: async () => {
         try {
           await customerService.activate(customer.id);
-          loadCustomers();
+          loadCustomers(pagination.current, pagination.pageSize);
         } catch (err) {
           // handled
         }
       },
     });
+  };
+
+  const handleTableChange = (newPagination: any, _: any, __: any) => {
+     loadCustomers(newPagination.current, newPagination.pageSize);
   };
 
   const columns: ColumnsType<Customer> = [
@@ -188,7 +202,7 @@ const CustomerManagement = () => {
             </Button>
             <Button
               icon={<ReloadOutlined />}
-              onClick={loadCustomers}
+              onClick={() => loadCustomers(pagination.current, pagination.pageSize)}
               loading={loading}
             >
               Làm Mới
@@ -202,7 +216,11 @@ const CustomerManagement = () => {
           rowKey="id"
           loading={loading}
           scroll={{ x: 1200 }}
+          onChange={handleTableChange}
           pagination={{
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: pagination.total,
             showSizeChanger: true,
             showTotal: (total) => `Tổng cộng ${total} khách hàng`,
             pageSizeOptions: ['10', '20', '50', '100'],
