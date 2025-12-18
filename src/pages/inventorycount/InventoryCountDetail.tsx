@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Descriptions, Table, Button, Space, Tag, message, Spin } from 'antd';
-import { ArrowLeftOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, CheckOutlined, CloseOutlined, FilePdfOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import inventoryCountService, { type InventoryCount } from '@/services/inventoryCountService';
 
@@ -10,6 +10,7 @@ const InventoryCountDetail = () => {
   const navigate = useNavigate();
   const [data, setData] = useState<InventoryCount | null>(null);
   const [loading, setLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -55,6 +56,19 @@ const InventoryCountDetail = () => {
       }
     } catch (error: any) {
       message.error(error.message || 'Lỗi khi hủy phiếu');
+    }
+  };
+
+  const handleExportPdf = async () => {
+    if (!id) return;
+    setPdfLoading(true);
+    try {
+      await inventoryCountService.exportPdf(id);
+      // message.success('Xuất PDF thành công');
+    } catch (error: any) {
+      message.error(error.message || 'Lỗi khi xuất PDF');
+    } finally {
+      setPdfLoading(false);
     }
   };
 
@@ -158,6 +172,14 @@ const InventoryCountDetail = () => {
             <h1 className="text-xl font-bold m-0">Chi Tiết Phiếu Kiểm Kê</h1>
           </Space>
           <Space>
+            <Button
+              type="default"
+              icon={<FilePdfOutlined />}
+              onClick={handleExportPdf}
+              loading={pdfLoading}
+            >
+              Xuất PDF
+            </Button>
             {data.countStatus !== 3 && data.countStatus !== 4 && (
               <>
                 <Button

@@ -115,6 +115,7 @@ export const API_ENDPOINTS = {
 
   // Inventory Count Management
   INVENTORY_COUNT: {
+    BASE: '/management/inventory-counts',
     CREATE: '/management/inventory-counts',
     UPDATE: '/management/inventory-counts',
     GET: '/management/inventory-counts/get',
