@@ -515,6 +515,7 @@ const StockOut = () => {
                 <Select 
                   placeholder="Chọn loại xuất kho"
                   onChange={(value) => setStockOutType(value)}
+                  disabled={isEditMode}
                 >
                   {enumData.stockOutType.list.map(item => (
                     <Option key={item.value} value={item.value}>{item.text}</Option>

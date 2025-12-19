@@ -390,7 +390,7 @@ const AdjustmentForm = () => {
                 rules={[{ required: true, message: 'Vui lòng chọn loại điều chỉnh' }]}
                 style={{ marginBottom: '12px' }}
               >
-                <Select placeholder="Chọn loại">
+                <Select placeholder="Chọn loại" disabled={isEditMode}>
                   <Option value={enums.adjustmentType.INCREASE.value}>
                     {enums.adjustmentType.INCREASE.text}
                   </Option>
