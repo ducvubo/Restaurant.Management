@@ -66,7 +66,6 @@ const InventoryCountManagement = () => {
       const response = await inventoryCountService.complete(id);
       const result = response.data;
       if (result.success) {
-        message.success('Hoàn thành kiểm kê thành công');
         loadData();
       }
     } catch (error: any) {

@@ -15,6 +15,8 @@ export interface StockOutRequest {
   transactionDate?: string;
   referenceNumber?: string;
   notes?: string;
+  issuedBy?: string;              // Người xuất kho
+  receivedBy?: string;            // Người tiếp nhận (chuyển kho)
   items: StockOutItemRequest[];
   // Stock Out Type fields
   stockOutType?: number;              // 1=Transfer, 2=Sale, 3=Disposal

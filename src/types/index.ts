@@ -411,8 +411,14 @@ export interface StockTransaction {
     destinationBranchId?: string;
     notes?: string;
     performedBy?: string;
-    status: number;
+    performedByName?: string;
     createdBy?: string;
+    createdByName?: string;
+    receivedBy?: string;
+    receivedByName?: string;
+    issuedBy?: string;
+    issuedByName?: string;
+    status: number;
     createdDate: string;
     isLocked: boolean;
     
@@ -486,6 +492,7 @@ export interface StockInRequest {
     transactionDate: string; // ISO string
     referenceNumber: string;
     notes?: string;
+    receivedBy?: string; // Người nhập kho
     items: StockInItemRequest[]; // Danh sách nguyên liệu
 }
 
@@ -495,6 +502,8 @@ export interface StockOutRequest {
     transactionDate: string; // ISO string
     referenceNumber: string;
     notes?: string;
+    issuedBy?: string; // Người xuất kho
+    receivedBy?: string; // Người tiếp nhận (chuyển kho)
     items: StockOutItemRequest[]; // Danh sách nguyên liệu
 }
 

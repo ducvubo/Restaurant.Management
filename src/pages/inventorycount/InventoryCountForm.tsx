@@ -5,6 +5,7 @@ import { SaveOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import inventoryCountService, { type InventoryCountItemRequest } from '@/services/inventoryCountService';
 import { warehouseService } from '@/services/warehouseService';
+import { userService } from '@/services/userService';
 
 const InventoryCountForm = () => {
   const navigate = useNavigate();
@@ -12,11 +13,13 @@ const InventoryCountForm = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [warehouses, setWarehouses] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [selectedWarehouse, setSelectedWarehouse] = useState<string>();
   const [items, setItems] = useState<any[]>([]);
 
   useEffect(() => {
     loadWarehouses();
+    loadUsers();
     if (id) {
       loadData();
     }
@@ -31,6 +34,15 @@ const InventoryCountForm = () => {
     }
   };
 
+  const loadUsers = async () => {
+    try {
+      const result = await userService.getAllUsers();
+      setUsers(result || []);
+    } catch (error) {
+      console.error('Error loading users:', error);
+    }
+  };
+
   const loadData = async () => {
     try {
       const response = await inventoryCountService.get(id!);
@@ -40,6 +52,7 @@ const InventoryCountForm = () => {
         form.setFieldsValue({
           warehouseId: data.warehouseId,
           countDate: dayjs(data.countDate),
+          performedBy: data.performedBy,
           notes: data.notes,
         });
         setSelectedWarehouse(data.warehouseId);
@@ -140,6 +153,7 @@ const InventoryCountForm = () => {
       const request = {
         warehouseId: values.warehouseId,
         countDate: values.countDate.toISOString(),
+        performedBy: values.performedBy,
         notes: values.notes,
         items: requestItems,
       };
@@ -153,7 +167,6 @@ const InventoryCountForm = () => {
 
       const result = response.data;
       if (result.success) {
-        message.success(id ? 'Cập nhật thành công' : 'Tạo phiếu kiểm kê thành công');
         navigate('/inventory-count');
       }
     } catch (error: any) {
@@ -298,7 +311,27 @@ const InventoryCountForm = () => {
           </Row>
 
           <Row gutter={16}>
-            <Col span={24}>
+            <Col span={12}>
+              <Form.Item
+                label="Người Kiểm Kê"
+                name="performedBy"
+                rules={[{ required: true, message: 'Vui lòng chọn người kiểm kê' }]}
+              >
+                <Select
+                  showSearch
+                  placeholder="Chọn người kiểm kê"
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  options={users.map(user => ({
+                    value: user.id,
+                    label: user.fullName || user.username,
+                  }))}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
               <Form.Item label="Ghi Chú" name="notes">
                 <Input.TextArea rows={2} placeholder="Nhập ghi chú" />
               </Form.Item>

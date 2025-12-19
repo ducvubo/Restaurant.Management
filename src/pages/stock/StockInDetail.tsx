@@ -233,6 +233,12 @@ const StockInDetail = () => {
             {transaction.transactionDate ? dayjs(transaction.transactionDate).format('DD/MM/YYYY HH:mm') : '-'}
           </Descriptions.Item>
           <Descriptions.Item label="Số Chứng Từ">{transaction.referenceNumber || '-'}</Descriptions.Item>
+          <Descriptions.Item label="Người Nhập Kho">
+            {transaction.receivedByName || '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label="Người Lập Phiếu">
+            {transaction.createdByName || '-'}
+          </Descriptions.Item>
           <Descriptions.Item label="Ghi Chú" span={2}>{transaction.notes || '-'}</Descriptions.Item>
         </Descriptions>
 

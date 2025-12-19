@@ -7,6 +7,7 @@ import { adjustmentService } from '@/services/adjustmentService';
 import { warehouseService } from '@/services/warehouseService';
 import { materialService } from '@/services/materialService';
 import { unitService } from '@/services/unitService';
+import { userService } from '@/services/userService';
 import Api from '@/services/baseHttp';
 import { API_ENDPOINTS } from '@/config/api';
 import type { ResultMessage } from '@/types';
@@ -51,6 +52,7 @@ const AdjustmentForm = () => {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [stockQuantities, setStockQuantities] = useState<Record<string, number>>({});
   
   const [items, setItems] = useState<ItemRow[]>([
@@ -69,15 +71,17 @@ const AdjustmentForm = () => {
 
   const loadMetaData = async () => {
     try {
-      const [whData, matData, unitData] = await Promise.all([
+      const [whData, matData, unitData, userData] = await Promise.all([
         warehouseService.getList({ page: 1, size: 100 }),
         materialService.getList({ page: 1, size: 100 }),
         unitService.getAllUnits(),
+        userService.getAllUsers(),
       ]);
 
       setWarehouses(whData.items);
       setMaterials(matData.items);
       setUnits(unitData);
+      setUsers(userData || []);
     } catch (e) {
       console.error(e);
     }
@@ -96,6 +100,7 @@ const AdjustmentForm = () => {
         transactionDate: dayjs(adjustment.transactionDate),
         reason: adjustment.reason,
         referenceNumber: adjustment.referenceNumber,
+        performedBy: adjustment.performedBy,
         notes: adjustment.notes,
       });
       
@@ -216,6 +221,7 @@ const AdjustmentForm = () => {
         transactionDate: values.transactionDate ? values.transactionDate.toISOString() : new Date().toISOString(),
         reason: values.reason,
         referenceNumber: values.referenceNumber,
+        performedBy: values.performedBy,
         notes: values.notes,
         items: items.map(item => ({
           materialId: item.materialId,
@@ -230,7 +236,6 @@ const AdjustmentForm = () => {
         await adjustmentService.update(id, requestData);
       } else {
         await adjustmentService.create(requestData);
-        message.success('Tạo phiếu điều chỉnh thành công');
       }
       
       navigate('/adjustment');
@@ -422,6 +427,31 @@ const AdjustmentForm = () => {
 
           <Row gutter={16}>
             <Col xs={24}>
+              
+              <Form.Item
+                label="Người Điều Chỉnh"
+                name="performedBy"
+                rules={[{ required: true, message: 'Vui lòng chọn người điều chỉnh' }]}
+                style={{ marginBottom: '12px' }}
+              >
+                <Select
+                  showSearch
+                  placeholder="Chọn người điều chỉnh"
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  options={users.map(user => ({
+                    value: user.id,
+                    label: user.fullName || user.username,
+                  }))}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col xs={24} sm={12}>
               <Form.Item
                 label="Lý Do Điều Chỉnh"
                 name="reason"
@@ -431,10 +461,7 @@ const AdjustmentForm = () => {
                 <TextArea rows={2} placeholder="Nhập lý do điều chỉnh (bắt buộc)" />
               </Form.Item>
             </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col xs={24}>
+            <Col xs={24} sm={12}>
               <Form.Item 
                 label="Ghi Chú" 
                 name="notes"

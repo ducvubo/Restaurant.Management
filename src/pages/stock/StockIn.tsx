@@ -9,6 +9,7 @@ import { materialService } from '@/services/materialService';
 import { unitService } from '@/services/unitService';
 import { supplierService } from '@/services/supplierService';
 import { stockTransactionService } from '@/services/stockTransactionService';
+import { userService } from '@/services/userService';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -29,6 +30,7 @@ const StockIn = () => {
   const [materials, setMaterials] = useState<Material[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   
   const [items, setItems] = useState<ItemRow[]>([
     { key: '1', materialId: '', unitId: '', quantity: 0, unitPrice: 0 }
@@ -46,17 +48,19 @@ const StockIn = () => {
 
   const loadMetaData = async () => {
     try {
-      const [whData, matData, unitData, supData] = await Promise.all([
+      const [whData, matData, unitData, supData, userData] = await Promise.all([
         warehouseService.getList({ page: 1, size: 100 }),
         materialService.getList({ page: 1, size: 100 }),
         unitService.getAllUnits(),
         supplierService.getAllSuppliers(),
+        userService.getAllUsers(),
       ]);
 
       setWarehouses(whData.items);
       setMaterials(matData.items);
       setUnits(unitData);
       setSuppliers(supData);
+      setUsers(userData || []);
     } catch (e) {
       console.error(e);
     }
@@ -75,6 +79,7 @@ const StockIn = () => {
         supplierId: transaction.supplierId,
         transactionDate: transaction.transactionDate ? dayjs(transaction.transactionDate) : dayjs(),
         referenceNumber: transaction.referenceNumber,
+        receivedBy: transaction.receivedBy,
         notes: transaction.notes,
       });
       
@@ -153,6 +158,7 @@ const StockIn = () => {
         supplierId: values.supplierId,
         transactionDate: values.transactionDate.toISOString(),
         referenceNumber: values.referenceNumber,
+        receivedBy: values.receivedBy,
         notes: values.notes || '',
         items: items.map(({ key, ...item }) => item), // Remove key field
       };
@@ -362,13 +368,38 @@ const StockIn = () => {
             </Col>
           </Row>
 
-          <Form.Item
-            name="notes"
-            label="Ghi Chú"
-            style={{ marginBottom: '12px' }}
-          >
-            <TextArea rows={2} placeholder="Nhập ghi chú" />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="receivedBy"
+                label="Người Nhập Kho"
+                rules={[{ required: true, message: 'Vui lòng chọn người nhập kho' }]}
+                style={{ marginBottom: '12px' }}
+              >
+                <Select
+                  showSearch
+                  placeholder="Chọn người nhập kho"
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  options={users.map(user => ({
+                    value: user.id,
+                    label: user.fullName || user.username,
+                  }))}
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="notes"
+                label="Ghi Chú"
+                style={{ marginBottom: '12px' }}
+              >
+                <TextArea rows={2} placeholder="Nhập ghi chú" />
+              </Form.Item>
+            </Col>
+          </Row>
         </Form>
 
         <div className="mt-4">

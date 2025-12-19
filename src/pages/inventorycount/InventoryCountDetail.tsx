@@ -38,7 +38,6 @@ const InventoryCountDetail = () => {
       const response = await inventoryCountService.complete(id!);
       const result = response.data;
       if (result.success) {
-        message.success('Hoàn thành kiểm kê thành công');
         loadData();
       }
     } catch (error: any) {
@@ -51,7 +50,6 @@ const InventoryCountDetail = () => {
       const response = await inventoryCountService.cancel(id!);
       const result = response.data;
       if (result.success) {
-        message.success('Hủy phiếu kiểm kê thành công');
         loadData();
       }
     } catch (error: any) {
@@ -64,7 +62,6 @@ const InventoryCountDetail = () => {
     setPdfLoading(true);
     try {
       await inventoryCountService.exportPdf(id);
-      // message.success('Xuất PDF thành công');
     } catch (error: any) {
       message.error(error.message || 'Lỗi khi xuất PDF');
     } finally {
@@ -166,12 +163,13 @@ const InventoryCountDetail = () => {
       <Card styles={{ body: { padding: '16px' } }}>
         <div className="flex items-center justify-between mb-4">
           <Space>
-            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/inventory-count')}>
-              Quay lại
-            </Button>
+            
             <h1 className="text-xl font-bold m-0">Chi Tiết Phiếu Kiểm Kê</h1>
           </Space>
           <Space>
+            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/inventory-count')}>
+              Quay lại
+            </Button>
             <Button
               type="default"
               icon={<FilePdfOutlined />}
@@ -224,6 +222,12 @@ const InventoryCountDetail = () => {
               </Button>
             </Descriptions.Item>
           )}
+          <Descriptions.Item label="Người Kiểm Kê">
+            {data.performedByName || '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label="Người Lập Phiếu">
+            {data.createdByName || '-'}
+          </Descriptions.Item>
           <Descriptions.Item label="Ghi Chú" span={4}>
             {data.notes || '-'}
           </Descriptions.Item>

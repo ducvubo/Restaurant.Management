@@ -211,6 +211,12 @@ const AdjustmentDetail = () => {
           <Descriptions.Item label="Lý Do" span={2}>
             {data.reason}
           </Descriptions.Item>
+          <Descriptions.Item label="Người Điều Chỉnh">
+            {data.performedByName || '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label="Người Lập Phiếu">
+            {data.createdByName || '-'}
+          </Descriptions.Item>
           <Descriptions.Item label="Ghi Chú" span={2}>
             {data.notes || '-'}
           </Descriptions.Item>

@@ -33,6 +33,10 @@ export interface AdjustmentTransaction {
   notes?: string;
   totalAmount: number;
   isLocked: boolean;
+  performedBy?: string;
+  performedByName?: string;
+  createdBy?: string;
+  createdByName?: string;
   status: number;
   createdDate: string;
   items?: AdjustmentItemRequest[];

@@ -46,6 +46,8 @@ export interface InventoryCount {
   adjustmentTransactionCode?: string;
   performedBy?: string;
   performedByName?: string;
+  createdBy?: string;
+  createdByName?: string;
   status: number;
   createdDate: string;
   updatedDate?: string;

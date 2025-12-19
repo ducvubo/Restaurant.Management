@@ -186,6 +186,14 @@ const StockOutDetail = () => {
       },
     },
     {
+      title: 'Đơn Giá',
+      dataIndex: 'unitPrice',
+      key: 'unitPrice',
+      width: 130,
+      align: 'right',
+      render: (val) => val ? <span>{val.toLocaleString()} đ</span> : <span className="text-gray-400">-</span>,
+    },
+    {
       title: 'Thành Tiền',
       dataIndex: 'totalAmount',
       key: 'totalAmount',
@@ -264,6 +272,17 @@ const StockOutDetail = () => {
             {transaction.transactionDate ? dayjs(transaction.transactionDate).format('DD/MM/YYYY HH:mm') : '-'}
           </Descriptions.Item>
           <Descriptions.Item label="Số Chứng Từ">{transaction.referenceNumber || '-'}</Descriptions.Item>
+          <Descriptions.Item label="Người Xuất Kho">
+            {transaction.issuedByName || '-'}
+          </Descriptions.Item>
+          {stockOutType === 1 && (
+            <Descriptions.Item label="Người Tiếp Nhận">
+              {transaction.receivedByName || '-'}
+            </Descriptions.Item>
+          )}
+          <Descriptions.Item label="Người Lập Phiếu">
+            {transaction.createdByName || '-'}
+          </Descriptions.Item>
           <Descriptions.Item label="Ghi Chú" span={2}>{transaction.notes || '-'}</Descriptions.Item>
         </Descriptions>
 

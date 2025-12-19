@@ -11,6 +11,7 @@ import { unitService } from '@/services/unitService';
 import { stockTransactionService } from '@/services/stockTransactionService';
 import { inventoryLedgerService } from '@/services/inventoryLedgerService';
 import { customerService } from '@/services/customerService';
+import { userService } from '@/services/userService';
 import enumData from '@/enums/enums';
 
 const { Option } = Select;
@@ -19,6 +20,8 @@ const { TextArea } = Input;
 interface ItemRow extends StockOutItemRequest {
   key: string;
   availableStock?: number;
+  unitPrice?: number;
+  totalAmount?: number;
 }
 
 const StockOut = () => {
@@ -33,6 +36,7 @@ const StockOut = () => {
   const [materials, setMaterials] = useState<Material[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   
   const [stockOutType, setStockOutType] = useState<number | undefined>(undefined);
   const [selectedWarehouse, setSelectedWarehouse] = useState<string | undefined>(undefined);
@@ -53,17 +57,19 @@ const StockOut = () => {
 
   const loadMetaData = async () => {
     try {
-      const [whData, matData, unitData, custData] = await Promise.all([
+      const [whData, matData, unitData, custData, userData] = await Promise.all([
         warehouseService.getList({ page: 1, size: 100 }),
         materialService.getList({ page: 1, size: 100 }),
         unitService.getAllUnits(),
         customerService.getList(),
+        userService.getAllUsers(),
       ]);
 
       setWarehouses(whData.items);
       setMaterials(matData.items);
       setUnits(unitData);
       setCustomers(custData.items);
+      setUsers(userData || []);
     } catch (e) {
       console.error(e);
     }
@@ -99,6 +105,8 @@ const StockOut = () => {
           destinationBranchId: transaction.destinationBranchId,
           transactionDate: transaction.transactionDate ? dayjs(transaction.transactionDate) : dayjs(),
           referenceNumber: transaction.referenceNumber,
+          issuedBy: transaction.issuedBy,
+          receivedBy: transaction.receivedBy,
           notes: transaction.notes,
         });
       }, 100);
@@ -126,6 +134,8 @@ const StockOut = () => {
               materialId: item.materialId,
               unitId: item.unitId,
               quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              totalAmount: item.totalAmount,
               notes: item.notes,
               availableStock,
             };
@@ -146,7 +156,17 @@ const StockOut = () => {
     if (material) {
       setItems(prev => prev.map(item => 
         item.key === key 
-          ? { ...item, materialId, unitId: material.unitId, availableStock: undefined }
+          ? { 
+              ...item, 
+              materialId, 
+              unitId: material.unitId, 
+              availableStock: undefined,
+              // Auto-fill unitPrice for retail sales
+              ...(stockOutType === 2 && material.unitPrice ? {
+                unitPrice: material.unitPrice,
+                totalAmount: (item.quantity || 0) * material.unitPrice
+              } : {})
+            }
           : item
       ));
       
@@ -218,6 +238,15 @@ const StockOut = () => {
       return;
     }
 
+    // Validate price for retail sales
+    if (stockOutType === 2) {
+      const hasInvalidPrice = items.some(item => !item.unitPrice || item.unitPrice <= 0);
+      if (hasInvalidPrice) {
+        message.error('Vui lòng nhập đơn giá cho tất cả các nguyên liệu khi bán lẻ');
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       const requestData = {
@@ -225,6 +254,8 @@ const StockOut = () => {
         destinationBranchId: form.getFieldValue('destinationBranchId'),
         transactionDate: form.getFieldValue('transactionDate')?.toISOString(),
         referenceNumber: form.getFieldValue('referenceNumber'),
+        issuedBy: form.getFieldValue('issuedBy'),
+        receivedBy: form.getFieldValue('receivedBy'),
         notes: form.getFieldValue('notes'),
         // Stock Out Type fields
         stockOutType: form.getFieldValue('stockOutType'),
@@ -235,6 +266,8 @@ const StockOut = () => {
           materialId: item.materialId!,
           unitId: item.unitId!,
           quantity: item.quantity!,
+          unitPrice: item.unitPrice,
+          totalAmount: item.totalAmount,
           notes: item.notes,
         })),
       };
@@ -314,7 +347,13 @@ const StockOut = () => {
           <div>
             <InputNumber
               value={value}
-              onChange={(val) => handleItemChange(record.key, 'quantity', val || 0)}
+              onChange={(val) => {
+                handleItemChange(record.key, 'quantity', val || 0);
+                // Auto calculate totalAmount for retail sales
+                if (stockOutType === 2 && record.unitPrice) {
+                  handleItemChange(record.key, 'totalAmount', (val || 0) * record.unitPrice);
+                }
+              }}
               min={0.001}
               max={hasStock ? record.availableStock : undefined}
               style={{ width: '100%' }}
@@ -345,6 +384,38 @@ const StockOut = () => {
         );
       },
     },
+    ...(stockOutType === 2 ? [{
+      title: <span className="text-red-500">* Đơn Giá</span>,
+      dataIndex: 'unitPrice',
+      width: 150,
+      render: (value: number, record: ItemRow) => (
+        <InputNumber
+          value={value}
+          onChange={(val) => {
+            handleItemChange(record.key, 'unitPrice', val || 0);
+            // Auto calculate totalAmount
+            const qty = record.quantity || 0;
+            const price = val || 0;
+            handleItemChange(record.key, 'totalAmount', qty * price);
+          }}
+          min={0}
+          style={{ width: '100%' }}
+          placeholder="Đơn giá"
+          formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+          parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
+        />
+      ),
+    },
+    {
+      title: 'Thành Tiền',
+      dataIndex: 'totalAmount',
+      width: 150,
+      render: (value: number) => (
+        <div className="text-right font-semibold">
+          {value ? value.toLocaleString('vi-VN') : '0'}
+        </div>
+      ),
+    }] : []),
     {
       title: 'Ghi Chú',
       dataIndex: 'notes',
@@ -590,6 +661,53 @@ const StockOut = () => {
               </Col>
             </Row>
           )}
+
+          <Row gutter={16}>
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="issuedBy"
+                label="Người Xuất Kho"
+                rules={[{ required: true, message: 'Vui lòng chọn người xuất kho' }]}
+                style={{ marginBottom: '12px' }}
+              >
+                <Select
+                  showSearch
+                  placeholder="Chọn người xuất kho"
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  options={users.map(user => ({
+                    value: user.id,
+                    label: user.fullName || user.username,
+                  }))}
+                />
+              </Form.Item>
+            </Col>
+            {stockOutType === 1 && (
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name="receivedBy"
+                  label="Người Tiếp Nhận"
+                  rules={[{ required: true, message: 'Vui lòng chọn người tiếp nhận' }]}
+                  style={{ marginBottom: '12px' }}
+                >
+                  <Select
+                    showSearch
+                    placeholder="Chọn người tiếp nhận"
+                    optionFilterProp="children"
+                    filterOption={(input, option) =>
+                      (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                    }
+                    options={users.map(user => ({
+                      value: user.id,
+                      label: user.fullName || user.username,
+                    }))}
+                  />
+                </Form.Item>
+              </Col>
+            )}
+          </Row>
 
           <Row gutter={16}>
             <Col xs={24}>
