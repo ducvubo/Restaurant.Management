@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Table, Button, Space, Tag, message, DatePicker, Select, Tooltip } from 'antd';
-import { PlusOutlined, EyeOutlined, CheckOutlined } from '@ant-design/icons';
+import { PlusOutlined, EyeOutlined, CheckOutlined, EditOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import inventoryCountService, { type InventoryCount } from '@/services/inventoryCountService';
 import { warehouseService } from '@/services/warehouseService';
@@ -150,7 +150,16 @@ const InventoryCountManagement = () => {
             />
           </Tooltip>
           {record.countStatus !== 3 && record.countStatus !== 4 && (
-            <Tooltip title="Hoàn thành">
+            <>
+              <Tooltip title="Sửa">
+                <Button
+                  type="link"
+                  size="small"
+                  icon={<EditOutlined />}
+                  onClick={() => navigate(`/inventory-count/edit/${record.id}`)}
+                />
+              </Tooltip>
+              <Tooltip title="Hoàn thành">
               <Button
                 type="link"
                 size="small"
@@ -158,6 +167,7 @@ const InventoryCountManagement = () => {
                 onClick={() => handleComplete(record.id)}
               />
             </Tooltip>
+            </>
           )}
         </Space>
       ),

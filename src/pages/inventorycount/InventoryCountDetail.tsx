@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Descriptions, Table, Button, Space, Tag, message, Spin } from 'antd';
-import { ArrowLeftOutlined, CheckOutlined, CloseOutlined, FilePdfOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, CheckOutlined, CloseOutlined, FilePdfOutlined, EditOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import inventoryCountService, { type InventoryCount } from '@/services/inventoryCountService';
 
@@ -180,6 +180,12 @@ const InventoryCountDetail = () => {
             </Button>
             {data.countStatus !== 3 && data.countStatus !== 4 && (
               <>
+                <Button
+                  icon={<EditOutlined />}
+                  onClick={() => navigate(`/inventory-count/edit/${id}`)}
+                >
+                  Sửa
+                </Button>
                 <Button
                   type="primary"
                   icon={<CheckOutlined />}
