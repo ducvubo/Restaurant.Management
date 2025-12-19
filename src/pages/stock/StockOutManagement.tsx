@@ -56,6 +56,13 @@ const StockOutManagement = () => {
       width: 150,
     },
     {
+      title: 'Loại Phiếu',
+      dataIndex: 'stockOutTypeName',
+      key: 'stockOutTypeName',
+      width: 150,
+      render: (text: string) => <Tag color="blue">{text || '-'}</Tag>,
+    },
+    {
       title: 'Ngày Xuất',
       dataIndex: 'transactionDate',
       key: 'transactionDate',
@@ -67,7 +74,17 @@ const StockOutManagement = () => {
       dataIndex: 'totalAmount',
       key: 'totalAmount',
       width: 150,
-      render: (amount: number) => `${amount?.toLocaleString('vi-VN') || 0} đ`,
+      align: 'right' as const,
+      render: (_: number, record: StockTransaction) => {
+        // Calculate from items since backend totalAmount is 0
+        let total = 0;
+        if (record.stockOutItems && record.stockOutItems.length > 0) {
+          total = record.stockOutItems.reduce((sum, item) => {
+            return sum + (item.totalAmount || 0);
+          }, 0);
+        }
+        return <strong>{total.toLocaleString('vi-VN')} đ</strong>;
+      },
     },
     {
       title: 'Trạng Thái',
