@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Card, Button, Space, Descriptions, Table, Tag, Modal, Spin, Alert, Tabs, message } from 'antd';
 import { ArrowLeftOutlined, EditOutlined, LockOutlined, FilePdfOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { stockTransactionService } from '@/services/stockTransactionService';
+import { stockInService } from '@/services/stockInService';
 import type { StockTransaction } from '@/types';
 import dayjs from 'dayjs';
 
@@ -30,7 +30,7 @@ const StockInDetail = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await stockTransactionService.getTransaction(id);
+      const data = await stockInService.getById(id);
       setTransaction(data);
     } catch (err: any) {
       setError('Không thể tải thông tin phiếu nhập');
@@ -50,7 +50,7 @@ const StockInDetail = () => {
       onOk: async () => {
         if (!id) return;
         try {
-          await stockTransactionService.lockTransaction(id);
+          await stockInService.lock(id);
           loadTransaction(); // Reload to get updated status
         } catch (err) {
           // Error handled by baseHttp
@@ -67,7 +67,7 @@ const StockInDetail = () => {
     if (!id) return;
     setPdfLoading(true);
     try {
-      await stockTransactionService.exportPdf(id);
+      await stockInService.exportPdf(id);
     } catch (error: any) {
       message.error(error.message || 'Lỗi khi xuất PDF');
     } finally {
@@ -80,7 +80,7 @@ const StockInDetail = () => {
     
     setPreviewLoading(true);
     try {
-      const data = await stockTransactionService.previewLedger(id);
+      const data = await stockInService.previewLedger(id);
       setPreviewData(data);
     } catch (err) {
       console.error('Failed to load preview:', err);

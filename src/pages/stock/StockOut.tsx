@@ -8,7 +8,7 @@ import type { Customer } from '@/services/customerService';
 import { warehouseService } from '@/services/warehouseService';
 import { materialService } from '@/services/materialService';
 import { unitService } from '@/services/unitService';
-import { stockTransactionService } from '@/services/stockTransactionService';
+import { stockOutService } from '@/services/stockOutService';
 import { inventoryLedgerService } from '@/services/inventoryLedgerService';
 import { customerService } from '@/services/customerService';
 import { userService } from '@/services/userService';
@@ -80,7 +80,7 @@ const StockOut = () => {
     
     try {
       setLoading(true);
-      const transaction = await stockTransactionService.getTransaction(id);
+      const transaction = await stockOutService.getById(id);
       
       console.log('Loaded transaction:', transaction); // Debug log
       
@@ -274,8 +274,8 @@ const StockOut = () => {
 
       // Use update API if in edit mode, otherwise create
       const result = isEditMode && id
-        ? await stockTransactionService.updateStockOut(id, requestData)
-        : await stockTransactionService.stockOut(requestData);
+        ? await stockOutService.update(id, requestData)
+        : await stockOutService.create(requestData);
 
       if (result.success) {
         form.resetFields();

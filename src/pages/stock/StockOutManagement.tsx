@@ -4,7 +4,7 @@ import { Card, Table, Button, Space, Tag } from 'antd';
 import { PlusOutlined, EyeOutlined, LockOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import type { StockTransaction } from '@/types';
-import { stockTransactionService } from '@/services/stockTransactionService';
+import { stockOutService } from '@/services/stockOutService';
 
 const StockOutManagement = () => {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ const StockOutManagement = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const result = await stockTransactionService.getList({
+      const result = await stockOutService.getList({
         page: pagination.current,
         size: pagination.pageSize,
         transactionType: 2, // STOCK_OUT = 2
@@ -35,7 +35,7 @@ const StockOutManagement = () => {
 
   const handleLock = async (id: string) => {
     try {
-      await stockTransactionService.lockTransaction(id);
+      await stockOutService.lock(id);
       loadData();
     } catch (error: any) {
       console.error('Lock transaction error:', error);

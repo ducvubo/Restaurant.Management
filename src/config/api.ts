@@ -83,7 +83,6 @@ export const API_ENDPOINTS = {
   CUSTOMER_DEACTIVATE: '/management/customers/deactivate',
   CUSTOMER_ACTIVATE: '/management/customers/activate',
 
-  // Stock Transaction Management
   STOCK_TRANSACTION_BASE: '/management/stock-transactions',
   STOCK_TRANSACTION_IN: '/management/stock-transactions/in',
   STOCK_TRANSACTION_OUT: '/management/stock-transactions/out',
@@ -92,6 +91,30 @@ export const API_ENDPOINTS = {
   STOCK_TRANSACTION_LOCK: '/management/stock-transactions/lock',
   STOCK_TRANSACTION_UNLOCK: '/management/stock-transactions/unlock',
   STOCK_TRANSACTION_PREVIEW_LEDGER: '/management/stock-transactions/preview-ledger',
+
+  // Stock In Management (New Separated API)
+  STOCK_IN: {
+    BASE: '/management/stock-in',
+    CREATE: '/management/stock-in',
+    UPDATE: '/management/stock-in',
+    GET: '/management/stock-in/get',
+    LIST: '/management/stock-in/list',
+    LOCK: '/management/stock-in/lock',
+    UNLOCK: '/management/stock-in/unlock',
+    PREVIEW: '/management/stock-in/preview-ledger',
+  },
+
+  // Stock Out Management (New Separated API)
+  STOCK_OUT: {
+    BASE: '/management/stock-out',
+    CREATE: '/management/stock-out',
+    UPDATE: '/management/stock-out',
+    GET: '/management/stock-out/get',
+    LIST: '/management/stock-out/list',
+    LOCK: '/management/stock-out/lock',
+    UNLOCK: '/management/stock-out/unlock',
+    PREVIEW: '/management/stock-out/preview-ledger',
+  },
 
   // Inventory Ledger Management
   INVENTORY_LEDGER_GET: '/management/inventory-ledger/get',

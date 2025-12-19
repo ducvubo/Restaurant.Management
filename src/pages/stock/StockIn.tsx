@@ -8,7 +8,7 @@ import { warehouseService } from '@/services/warehouseService';
 import { materialService } from '@/services/materialService';
 import { unitService } from '@/services/unitService';
 import { supplierService } from '@/services/supplierService';
-import { stockTransactionService } from '@/services/stockTransactionService';
+import { stockInService } from '@/services/stockInService';
 import { userService } from '@/services/userService';
 
 const { Option } = Select;
@@ -71,7 +71,7 @@ const StockIn = () => {
     
     try {
       setLoading(true);
-      const transaction = await stockTransactionService.getTransaction(id);
+      const transaction = await stockInService.getById(id);
       
       // Pre-fill form
       form.setFieldsValue({
@@ -165,8 +165,8 @@ const StockIn = () => {
 
       // Use update API if in edit mode, otherwise create
       const result = isEditMode && id
-        ? await stockTransactionService.updateStockIn(id, request)
-        : await stockTransactionService.stockIn(request);
+        ? await stockInService.update(id, request)
+        : await stockInService.create(request);
         
       if (result.success) {
         form.resetFields();

@@ -207,7 +207,12 @@ const AdjustmentForm = () => {
         const currentStock = stockQuantities[stockKey] || 0;
         if (item.quantity > currentStock) {
           const material = materials.find(m => m.id === item.materialId);
-          message.error(`Số lượng giảm của "${material?.name}" (${item.quantity}) vượt quá tồn kho (${currentStock})`);
+          message.error(
+            `Số lượng giảm vượt quá tồn kho!\n` +
+            `Nguyên liệu: "${material?.name}"\n` +
+            `Tồn kho hiện tại: ${currentStock.toLocaleString('vi-VN')}\n` +
+            `Yêu cầu giảm: ${item.quantity.toLocaleString('vi-VN')}`
+          );
           return;
         }
       }
@@ -298,14 +303,28 @@ const AdjustmentForm = () => {
       dataIndex: 'quantity',
       key: 'quantity',
       width: 150,
-      render: (value: number, record: ItemRow) => (
-        <InputNumber
-          min={0}
-          value={value}
-          onChange={(val) => handleItemChange(record.key, 'quantity', val || 0)}
-          style={{ width: '100%' }}
-        />
-      ),
+      render: (value: number, record: ItemRow) => {
+        const adjustmentType = form.getFieldValue('adjustmentType');
+        const warehouseId = form.getFieldValue('warehouseId');
+        
+        // Calculate max value for decrease adjustments
+        let maxValue = undefined;
+        if (adjustmentType === enums.adjustmentType.DECREASE.value && warehouseId && record.materialId) {
+          const stockKey = `${warehouseId}_${record.materialId}`;
+          maxValue = stockQuantities[stockKey] || 0;
+        }
+        
+        return (
+          <InputNumber
+            min={0}
+            max={maxValue}
+            value={value}
+            onChange={(val) => handleItemChange(record.key, 'quantity', val || 0)}
+            style={{ width: '100%' }}
+            placeholder={maxValue !== undefined ? `Tối đa: ${maxValue}` : undefined}
+          />
+        );
+      },
     },
     {
       title: 'Ghi Chú',

@@ -135,9 +135,10 @@ const InventoryLedgerManagement = () => {
     },
     {
       title: 'Xuất',
+      dataIndex: 'quantityOut',
       key: 'quantityOut',
       width: 100,
-      render: () => '-', // Stock out will be tracked separately
+      render: (val) => val && val > 0 ? <span className="text-red-600 font-bold">-{val}</span> : '-',
     },
     {
       title: 'Tồn Cuối',

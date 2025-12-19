@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Card, Button, Space, Descriptions, Table, Tag, Modal, Spin, Alert, Tabs, message } from 'antd';
 import { ArrowLeftOutlined, EditOutlined, LockOutlined, FilePdfOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { stockTransactionService } from '@/services/stockTransactionService';
+import { stockOutService } from '@/services/stockOutService';
 import { inventoryLedgerService } from '@/services/inventoryLedgerService';
 import type { StockTransaction } from '@/types';
 import enumData from '@/enums/enums';
@@ -32,7 +32,7 @@ const StockOutDetail = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await stockTransactionService.getTransaction(id);
+      const data = await stockOutService.getById(id);
       
       // Load available stock for each item
       if (data.stockOutItems && data.stockOutItems.length > 0 && data.warehouseId) {
@@ -72,7 +72,7 @@ const StockOutDetail = () => {
       onOk: async () => {
         if (!id) return;
         try {
-          await stockTransactionService.lockTransaction(id);
+          await stockOutService.lock(id);
           loadTransaction(); // Reload to get updated status
         } catch (err) {
           // Error handled by baseHttp
@@ -89,7 +89,7 @@ const StockOutDetail = () => {
     if (!id) return;
     setPdfLoading(true);
     try {
-      await stockTransactionService.exportPdf(id);
+      await stockOutService.exportPdf(id);
     } catch (error: any) {
       message.error(error.message || 'Lỗi khi xuất PDF');
     } finally {
@@ -102,7 +102,7 @@ const StockOutDetail = () => {
     
     setPreviewLoading(true);
     try {
-      const data = await stockTransactionService.previewLedger(id);
+      const data = await stockOutService.previewLedger(id);
       setPreviewData(data);
     } catch (err) {
       console.error('Failed to load preview:', err);
