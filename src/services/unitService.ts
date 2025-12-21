@@ -9,12 +9,6 @@ export const unitService = {
     return response.data.result || [];
   },
 
-  // Get base units
-  getBaseUnits: async (): Promise<Unit[]> => {
-    const response = await Api.get<ResultMessage<Unit[]>>(API_ENDPOINTS.UNIT_BASE_UNITS);
-    return response.data.result || [];
-  },
-
   // Get unit list (with pagination and search)
   getUnitList: async (request: UnitListRequest): Promise<UnitListResponse> => {
     const response = await Api.get<ResultMessage<UnitListResponse>>(API_ENDPOINTS.UNIT_LIST, {

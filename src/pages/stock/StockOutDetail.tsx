@@ -5,6 +5,7 @@ import { ArrowLeftOutlined, EditOutlined, LockOutlined, FilePdfOutlined } from '
 import type { ColumnsType } from 'antd/es/table';
 import { stockOutService } from '@/services/stockOutService';
 import { inventoryLedgerService } from '@/services/inventoryLedgerService';
+import unitConversionService, { type MaterialUnit } from '@/services/unitConversionService';
 import type { StockTransaction } from '@/types';
 import enumData from '@/enums/enums';
 import dayjs from 'dayjs';
@@ -19,6 +20,7 @@ const StockOutDetail = () => {
   const [previewData, setPreviewData] = useState<any>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [materialUnits, setMaterialUnits] = useState<Record<string, MaterialUnit[]>>({});
 
   useEffect(() => {
     if (id) {
@@ -51,6 +53,20 @@ const StockOutDetail = () => {
           })
         );
         data.stockOutItems = itemsWithStock;
+        
+        // Load units for each material
+        const uniqueMaterialIds = [...new Set(itemsWithStock.map(item => item.materialId))];
+        for (const materialId of uniqueMaterialIds) {
+          try {
+            const units = await unitConversionService.getUnitsForMaterial(materialId);
+            setMaterialUnits(prev => ({
+              ...prev,
+              [materialId]: units
+            }));
+          } catch (error) {
+            console.error(`Failed to load units for material ${materialId}:`, error);
+          }
+        }
       }
       
       setTransaction(data);
@@ -182,7 +198,27 @@ const StockOutDetail = () => {
         if (record.availableStock === undefined) {
           return <span className="text-gray-400">-</span>;
         }
-        return <span className="text-green-600 font-bold">{record.availableStock.toLocaleString()}</span>;
+        
+        // Get units for this material
+        const units = record.materialId ? materialUnits[record.materialId] || [] : [];
+        const baseUnit = units.find(u => u.isBaseUnit);
+        const selectedUnit = units.find(u => u.unitId === record.unitId);
+        
+        // Convert stock to selected unit if different from base unit
+        let displayStock = record.availableStock;
+        let displayUnitSymbol = baseUnit?.unitSymbol || '';
+        
+        if (selectedUnit && selectedUnit.conversionFactor && !selectedUnit.isBaseUnit) {
+          // Convert from base unit to selected unit
+          displayStock = record.availableStock / selectedUnit.conversionFactor;
+          displayUnitSymbol = selectedUnit.unitSymbol;
+        }
+        
+        return (
+          <span className="text-green-600 font-bold">
+            {displayStock.toFixed(3).replace(/\.?0+$/, '')} {displayUnitSymbol}
+          </span>
+        );
       },
     },
     {
@@ -337,7 +373,7 @@ const StockOutDetail = () => {
                               key: 'quantityUsed',
                               width: 100,
                               align: 'right',
-                              render: (val: number) => val?.toLocaleString(),
+                              render: (val: number) => `${val?.toLocaleString()} ${item.baseUnitSymbol || ''}`,
                             },
                             {
                               title: 'Đơn Giá',
@@ -354,13 +390,20 @@ const StockOutDetail = () => {
                               render: (val: number) => <strong>{val?.toLocaleString()} đ</strong>,
                             },
                             {
+                              title: 'Tồn Hiện Tại',
+                              dataIndex: 'remainingBefore',
+                              key: 'remainingBefore',
+                              align: 'right',
+                              render: (val: number) => <span className="text-blue-600">{val?.toLocaleString()} {item.baseUnitSymbol || ''}</span>,
+                            },
+                            {
                               title: 'Tồn Còn Lại',
                               dataIndex: 'remainingAfter',
                               key: 'remainingAfter',
                               align: 'right',
                               render: (val: number) => (
                                 <span className={val === 0 ? 'text-red-500' : 'text-green-600'}>
-                                  {val?.toLocaleString()}
+                                  {val?.toLocaleString()} {item.baseUnitSymbol || ''}
                                 </span>
                               ),
                             },

@@ -156,6 +156,15 @@ Api.interceptors.response.use(
       }
     }
 
+    if(response.data.success === false){
+      showErrorNotification(
+        'Thất bại',
+        response.data.message || 'Đã xảy ra lỗi',
+        response.status
+      );
+      return Promise.reject(response.data);
+    }
+
     if (response.status === 200 && response.data) {
       const data = response.data as ApiResponse | ResultMessage<any>;
       const method = (response.config?.method || '').toUpperCase();

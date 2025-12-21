@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Form, Input, Button, Card, Space, Row, Col, InputNumber, Select, Spin } from 'antd';
-import type { Unit, UpdateUnitRequest } from '@/types';
+import { Form, Input, Button, Card, Space, Row, Col, Spin } from 'antd';
+import type { UpdateUnitRequest } from '@/types';
 import { unitService } from '@/services/unitService';
 
 const { TextArea } = Input;
@@ -13,7 +13,6 @@ const UpdateUnit = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
-  const [baseUnits, setBaseUnits] = useState<Unit[]>([]);
 
   useEffect(() => {
     if (unitId) {
@@ -24,31 +23,11 @@ const UpdateUnit = () => {
   const loadData = async () => {
     try {
       setFetching(true);
-      const [unit, units] = await Promise.all([
-        unitService.getUnitById(unitId!),
-        unitService.getBaseUnits()
-      ]);
-
-      // Filter out current unit from base units to avoid self-reference
-      const filteredBaseUnits = units.filter(u => u.id !== unitId);
-      setBaseUnits(filteredBaseUnits);
-
-      // Check if current baseUnitId exists in the filtered list
-      // If not exists (and is not null), set it to null to show placeholder instead of ID
-      let validBaseUnitId = unit.baseUnitId;
-      if (validBaseUnitId) {
-        const baseUnitExists = filteredBaseUnits.some(u => u.id === validBaseUnitId);
-        if (!baseUnitExists) {
-          validBaseUnitId = undefined; // Set to undefined to clear the field (showing placeholder)
-        }
-      }
+      const unit = await unitService.getUnitById(unitId!);
 
       form.setFieldsValue({
         code: unit.code,
         name: unit.name,
-        symbol: unit.symbol,
-        baseUnitId: validBaseUnitId, // Use the validated ID
-        conversionRate: unit.conversionRate,
         description: unit.description,
       });
     } catch (error) {
@@ -66,9 +45,6 @@ const UpdateUnit = () => {
         id: unitId!,
         code: values.code,
         name: values.name,
-        symbol: values.symbol,
-        baseUnitId: values.baseUnitId,
-        conversionRate: values.conversionRate,
         description: values.description,
       };
 
@@ -144,51 +120,7 @@ const UpdateUnit = () => {
             </Col>
           </Row>
 
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="Ký Hiệu"
-                name="symbol"
-                style={{ marginBottom: '12px' }}
-              >
-                <Input placeholder="Nhập ký hiệu (VD: kg, ml)" />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="Đơn Vị Cơ Bản"
-                name="baseUnitId"
-                style={{ marginBottom: '12px' }}
-              >
-                <Select
-                  placeholder="Chọn đơn vị cơ bản (nếu có)"
-                  allowClear
-                  options={baseUnits.map(unit => ({
-                    label: `${unit.name} (${unit.code})`,
-                    value: unit.id,
-                  }))}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
 
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="Tỷ Lệ Chuyển Đổi"
-                name="conversionRate"
-                tooltip="VD: 1 thùng = 24 chai, nhập 24"
-                style={{ marginBottom: '12px' }}
-              >
-                <InputNumber
-                  placeholder="Nhập tỷ lệ chuyển đổi"
-                  style={{ width: '100%' }}
-                  min={0}
-                  step={0.01}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
 
           <Form.Item
             label="Mô Tả"

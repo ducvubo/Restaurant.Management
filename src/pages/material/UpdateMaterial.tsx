@@ -2,8 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, Form, Input, Button, Select, Space, InputNumber, message, Spin, Row, Col } from 'antd';
-import type { MaterialCategory, Unit, UpdateMaterialRequest } from '@/types';
-import { unitService } from '@/services/unitService';
+import type { MaterialCategory, UpdateMaterialRequest } from '@/types';
 import { materialCategoryService } from '@/services/materialCategoryService';
 import { materialService } from '@/services/materialService';
 
@@ -17,7 +16,6 @@ const UpdateMaterial = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
-  const [units, setUnits] = useState<Unit[]>([]);
   const [categories, setCategories] = useState<MaterialCategory[]>([]);
 
   useEffect(() => {
@@ -31,12 +29,10 @@ const UpdateMaterial = () => {
 
   const loadData = async () => {
     try {
-      const [unitData, categoryData, materialData] = await Promise.all([
-        unitService.getAllUnits(),
+      const [categoryData, materialData] = await Promise.all([
         materialCategoryService.getAll(),
         materialService.getMaterialById(id!)
       ]);
-      setUnits(unitData);
       setCategories(categoryData);
 
       // Map data to form
@@ -143,20 +139,6 @@ const UpdateMaterial = () => {
                 <Select placeholder="Chọn danh mục">
                   {categories.map(c => (
                     <Option key={c.id} value={c.id}>{c.name}</Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                name="unitId"
-                label="Đơn Vị Tính"
-                rules={[{ required: true, message: 'Vui lòng chọn đơn vị' }]}
-                style={{ marginBottom: '12px' }}
-              >
-                <Select placeholder="Chọn đơn vị">
-                  {units.map(u => (
-                    <Option key={u.id} value={u.id}>{u.name}</Option>
                   ))}
                 </Select>
               </Form.Item>

@@ -16,12 +16,10 @@ export const materialCategoryService = {
     return response.data.result;
   },
 
-  // Lấy tất cả danh mục (cho combobox - vẫn giữ API cũ nếu cần, hoặc dùng getList với size lớn)
+  // Lấy tất cả danh mục (cho combobox)
   getAll: async (): Promise<MaterialCategory[]> => {
-    const response = await Api.get<ResultMessage<{ items: MaterialCategory[] }>>(API_ENDPOINTS.MATERIAL_CATEGORY_GET_ALL, {
-        params: { page: 1, size: 1000 }
-    });
-    return response.data.result.items;
+    const response = await Api.get<ResultMessage<MaterialCategory[]>>(API_ENDPOINTS.MATERIAL_CATEGORY_GET_ALL);
+    return response.data.result;
   },
 
   getById: async (id: string): Promise<MaterialCategory> => {

@@ -121,26 +121,6 @@ const UnitManagement = () => {
       width: 150,
     },
     {
-      title: 'Ký Hiệu',
-      dataIndex: 'symbol',
-      key: 'symbol',
-      width: 100,
-    },
-    {
-      title: 'Đơn Vị Cơ Bản',
-      dataIndex: 'baseUnitName',
-      key: 'baseUnitName',
-      width: 120,
-      render: (text) => text || '-',
-    },
-    {
-      title: 'Tỷ Lệ Chuyển Đổi',
-      dataIndex: 'conversionRate',
-      key: 'conversionRate',
-      width: 120,
-      render: (value) => value || '-',
-    },
-    {
       title: 'Mô Tả',
       dataIndex: 'description',
       key: 'description',

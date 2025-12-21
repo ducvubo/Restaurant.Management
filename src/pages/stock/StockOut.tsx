@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Card, Form, Input, Button, Select, Space, InputNumber, message, DatePicker, Row, Col, Table, Divider } from 'antd';
+import { Card, Form, Input, Button, Select, Space, InputNumber, message, DatePicker, Row, Col, Table, Divider, Tag } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import type { Material, StockOutItemRequest, Unit, Warehouse } from '@/types';
+import type { Material, StockOutItemRequest, Warehouse } from '@/types';
 import type { Customer } from '@/services/customerService';
 import { warehouseService } from '@/services/warehouseService';
 import { materialService } from '@/services/materialService';
-import { unitService } from '@/services/unitService';
 import { stockOutService } from '@/services/stockOutService';
 import { inventoryLedgerService } from '@/services/inventoryLedgerService';
 import { customerService } from '@/services/customerService';
 import { userService } from '@/services/userService';
+import unitConversionService, { type MaterialUnit } from '@/services/unitConversionService';
 import enumData from '@/enums/enums';
 
 const { Option } = Select;
@@ -34,9 +34,9 @@ const StockOut = () => {
 
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
-  const [units, setUnits] = useState<Unit[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+  const [materialUnits, setMaterialUnits] = useState<Record<string, MaterialUnit[]>>({});
   
   const [stockOutType, setStockOutType] = useState<number | undefined>(undefined);
   const [selectedWarehouse, setSelectedWarehouse] = useState<string | undefined>(undefined);
@@ -57,17 +57,15 @@ const StockOut = () => {
 
   const loadMetaData = async () => {
     try {
-      const [whData, matData, unitData, custData, userData] = await Promise.all([
+      const [whData, matData, custData, userData] = await Promise.all([
         warehouseService.getList({ page: 1, size: 100 }),
         materialService.getList({ page: 1, size: 100 }),
-        unitService.getAllUnits(),
         customerService.getList(),
         userService.getAllUsers(),
       ]);
 
       setWarehouses(whData.items);
       setMaterials(matData.items);
-      setUnits(unitData);
       setCustomers(custData.items);
       setUsers(userData || []);
     } catch (e) {
@@ -142,6 +140,20 @@ const StockOut = () => {
           })
         );
         setItems(loadedItems);
+        
+        // Load units for each material in items
+        const uniqueMaterialIds = [...new Set(loadedItems.map(item => item.materialId).filter(Boolean))];
+        for (const materialId of uniqueMaterialIds) {
+          try {
+            const units = await unitConversionService.getUnitsForMaterial(materialId);
+            setMaterialUnits(prev => ({
+              ...prev,
+              [materialId]: units
+            }));
+          } catch (error) {
+            console.error(`Failed to load units for material ${materialId}:`, error);
+          }
+        }
       }
     } catch (err) {
       message.error('Không thể tải thông tin phiếu xuất');
@@ -153,34 +165,64 @@ const StockOut = () => {
 
   const handleMaterialChange = async (materialId: string, key: string) => {
     const material = materials.find(m => m.id === materialId);
-    if (material) {
+    
+    // Load allowed units for this material
+    try {
+      const allowedUnits = await unitConversionService.getUnitsForMaterial(materialId);
+      setMaterialUnits(prev => ({
+        ...prev,
+        [materialId]: allowedUnits
+      }));
+      
+      // Set default to base unit
+      const baseUnit = allowedUnits.find(u => u.isBaseUnit);
+      const defaultUnitId = baseUnit?.unitId || material?.unitId || '';
+      
       setItems(prev => prev.map(item => 
         item.key === key 
           ? { 
               ...item, 
               materialId, 
-              unitId: material.unitId, 
+              unitId: defaultUnitId, 
               availableStock: undefined,
               // Auto-fill unitPrice for retail sales
-              ...(stockOutType === 2 && material.unitPrice ? {
+              ...(stockOutType === 2 && material?.unitPrice ? {
                 unitPrice: material.unitPrice,
                 totalAmount: (item.quantity || 0) * material.unitPrice
               } : {})
             }
           : item
       ));
-      
-      // Load available stock
-      const warehouseId = form.getFieldValue('warehouseId');
-      if (warehouseId) {
-        try {
-          const stock = await inventoryLedgerService.getAvailableStock(warehouseId, materialId);
-          setItems(prev => prev.map(item => 
-            item.key === key ? { ...item, availableStock: stock } : item
-          ));
-        } catch (e) {
-          console.error('Error loading stock:', e);
-        }
+    } catch (error) {
+      // Fallback to material's default unit if conversion service fails
+      if (material) {
+        setItems(prev => prev.map(item => 
+          item.key === key 
+            ? { 
+                ...item, 
+                materialId, 
+                unitId: material.unitId, 
+                availableStock: undefined,
+                ...(stockOutType === 2 && material.unitPrice ? {
+                  unitPrice: material.unitPrice,
+                  totalAmount: (item.quantity || 0) * material.unitPrice
+                } : {})
+              }
+            : item
+        ));
+      }
+    }
+    
+    // Load available stock
+    const warehouseId = form.getFieldValue('warehouseId');
+    if (warehouseId) {
+      try {
+        const stock = await inventoryLedgerService.getAvailableStock(warehouseId, materialId);
+        setItems(prev => prev.map(item => 
+          item.key === key ? { ...item, availableStock: stock } : item
+        ));
+      } catch (e) {
+        console.error('Error loading stock:', e);
       }
     }
   };
@@ -320,19 +362,27 @@ const StockOut = () => {
     {
       title: 'Đơn Vị',
       dataIndex: 'unitId',
-      width: 120,
-      render: (value: string, record: ItemRow) => (
-        <Select
-          value={value || undefined}
-          placeholder="Đơn vị"
-          onChange={(val) => handleItemChange(record.key, 'unitId', val)}
-          style={{ width: '100%' }}
-        >
-          {units.map(u => (
-            <Option key={u.id} value={u.id}>{u.name}</Option>
-          ))}
-        </Select>
-      ),
+      width: 150,
+      render: (value: string, record: ItemRow) => {
+        const allowedUnits = record.materialId ? materialUnits[record.materialId] || [] : [];
+        
+        return (
+          <Select
+            value={value || undefined}
+            placeholder="Đơn vị"
+            onChange={(val) => handleItemChange(record.key, 'unitId', val)}
+            style={{ width: '100%' }}
+            disabled={!record.materialId}
+          >
+            {allowedUnits.map(u => (
+              <Option key={u.unitId} value={u.unitId}>
+                {u.unitSymbol} ({u.unitName})
+                {u.isBaseUnit && <Tag color="blue" style={{ marginLeft: 4 }}>Cơ sở</Tag>}
+              </Option>
+            ))}
+          </Select>
+        );
+      },
     },
     {
       title: <span className="text-red-500">* Số Lượng</span>,
@@ -374,12 +424,31 @@ const StockOut = () => {
       title: 'Tồn Kho',
       dataIndex: 'availableStock',
       width: 100,
-      render: (stock: number | undefined) => {
+      render: (stock: number | undefined, record: ItemRow) => {
         if (stock === undefined) return <span className="text-gray-400">-</span>;
+        
+        // Get units for this material
+        const units = record.materialId ? materialUnits[record.materialId] || [] : [];
+        const baseUnit = units.find(u => u.isBaseUnit);
+        const selectedUnit = units.find(u => u.unitId === record.unitId);
+        
+        // Convert stock to selected unit if different from base unit
+        let displayStock = stock;
+        let displayUnitSymbol = baseUnit?.unitSymbol || '';
+        
+        if (selectedUnit && selectedUnit.conversionFactor && !selectedUnit.isBaseUnit) {
+          // Convert from base unit to selected unit
+          // Example: stock = 23.333 KG (base), selected = Gram (factor = 0.001)
+          // displayStock = 23.333 / 0.001 = 23333 G
+          displayStock = stock / selectedUnit.conversionFactor;
+          displayUnitSymbol = selectedUnit.unitSymbol;
+        }
+        
         const isLow = stock > 0 && stock <= (stock * 0.1);
+        
         return (
           <span className={isLow ? 'text-orange-600 font-bold' : 'text-green-600 font-bold'}>
-            {stock}
+            {displayStock.toFixed(3).replace(/\.?0+$/, '')} {displayUnitSymbol}
           </span>
         );
       },

@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Card, Form, Input, Button, Select, Space, InputNumber, message, DatePicker, Row, Col, Table } from 'antd';
+import { Card, Form, Input, Button, Select, Space, InputNumber, message, DatePicker, Row, Col, Table, Tag } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import type { Material, StockInRequest, StockInItemRequest, Supplier, Unit, Warehouse } from '@/types';
+import type { Material, StockInRequest, StockInItemRequest, Supplier, Warehouse } from '@/types';
 import { warehouseService } from '@/services/warehouseService';
 import { materialService } from '@/services/materialService';
-import { unitService } from '@/services/unitService';
 import { supplierService } from '@/services/supplierService';
 import { stockInService } from '@/services/stockInService';
 import { userService } from '@/services/userService';
+import unitConversionService, { type MaterialUnit } from '@/services/unitConversionService';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -28,9 +28,9 @@ const StockIn = () => {
 
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
-  const [units, setUnits] = useState<Unit[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+  const [materialUnits, setMaterialUnits] = useState<Record<string, MaterialUnit[]>>({});
   
   const [items, setItems] = useState<ItemRow[]>([
     { key: '1', materialId: '', unitId: '', quantity: 0, unitPrice: 0 }
@@ -48,17 +48,15 @@ const StockIn = () => {
 
   const loadMetaData = async () => {
     try {
-      const [whData, matData, unitData, supData, userData] = await Promise.all([
+      const [whData, matData, supData, userData] = await Promise.all([
         warehouseService.getList({ page: 1, size: 100 }),
         materialService.getList({ page: 1, size: 100 }),
-        unitService.getAllUnits(),
         supplierService.getAllSuppliers(),
         userService.getAllUsers(),
       ]);
 
       setWarehouses(whData.items);
       setMaterials(matData.items);
-      setUnits(unitData);
       setSuppliers(supData);
       setUsers(userData || []);
     } catch (e) {
@@ -94,6 +92,20 @@ const StockIn = () => {
           notes: item.notes,
         }));
         setItems(loadedItems);
+        
+        // Load units for each material in items
+        const uniqueMaterialIds = [...new Set(loadedItems.map(item => item.materialId).filter(Boolean))];
+        for (const materialId of uniqueMaterialIds) {
+          try {
+            const units = await unitConversionService.getUnitsForMaterial(materialId);
+            setMaterialUnits(prev => ({
+              ...prev,
+              [materialId]: units
+            }));
+          } catch (error) {
+            console.error(`Failed to load units for material ${materialId}:`, error);
+          }
+        }
       }
     } catch (err) {
       message.error('Không thể tải thông tin phiếu nhập');
@@ -103,14 +115,35 @@ const StockIn = () => {
     }
   };
 
-  const handleMaterialChange = (materialId: string, key: string) => {
+  const handleMaterialChange = async (materialId: string, key: string) => {
     const material = materials.find(m => m.id === materialId);
-    if (material) {
+    
+    // Load allowed units for this material
+    try {
+      const allowedUnits = await unitConversionService.getUnitsForMaterial(materialId);
+      setMaterialUnits(prev => ({
+        ...prev,
+        [materialId]: allowedUnits
+      }));
+      
+      // Set default to base unit
+      const baseUnit = allowedUnits.find(u => u.isBaseUnit);
+      const defaultUnitId = baseUnit?.unitId || material?.unitId || '';
+      
       setItems(prev => prev.map(item => 
         item.key === key 
-          ? { ...item, materialId, unitId: material.unitId, unitPrice: material.unitPrice || 0 }
+          ? { ...item, materialId, unitId: defaultUnitId, unitPrice: material?.unitPrice || 0 }
           : item
       ));
+    } catch (error) {
+      // Fallback to material's default unit if conversion service fails
+      if (material) {
+        setItems(prev => prev.map(item => 
+          item.key === key 
+            ? { ...item, materialId, unitId: material.unitId, unitPrice: material.unitPrice || 0 }
+            : item
+        ));
+      }
     }
   };
 
@@ -142,6 +175,12 @@ const StockIn = () => {
     const hasEmptyMaterial = items.some(item => !item.materialId);
     if (hasEmptyMaterial) {
       message.error('Vui lòng chọn nguyên liệu cho tất cả các dòng');
+      return;
+    }
+
+    const hasEmptyUnit = items.some(item => !item.unitId);
+    if (hasEmptyUnit) {
+      message.error('Vui lòng chọn đơn vị cho tất cả các dòng');
       return;
     }
 
@@ -210,19 +249,27 @@ const StockIn = () => {
     {
       title: 'Đơn Vị',
       dataIndex: 'unitId',
-      width: 120,
-      render: (value: string, record: ItemRow) => (
-        <Select
-          value={value || undefined}
-          placeholder="Đơn vị"
-          onChange={(val) => handleItemChange(record.key, 'unitId', val)}
-          style={{ width: '100%' }}
-        >
-          {units.map(u => (
-            <Option key={u.id} value={u.id}>{u.name}</Option>
-          ))}
-        </Select>
-      ),
+      width: 150,
+      render: (value: string, record: ItemRow) => {
+        const allowedUnits = record.materialId ? materialUnits[record.materialId] || [] : [];
+        
+        return (
+          <Select
+            value={value || undefined}
+            placeholder="Đơn vị"
+            onChange={(val) => handleItemChange(record.key, 'unitId', val)}
+            style={{ width: '100%' }}
+            disabled={!record.materialId}
+          >
+            {Array.isArray(allowedUnits) && allowedUnits.map(u => (
+              <Option key={u.unitId} value={u.unitId}>
+                {u.unitSymbol} ({u.unitName})
+                {u.isBaseUnit && <Tag color="blue" style={{ marginLeft: 4 }}>Cơ sở</Tag>}
+              </Option>
+            ))}
+          </Select>
+        );
+      },
     },
     {
       title: <span className="text-red-500">* Số Lượng</span>,

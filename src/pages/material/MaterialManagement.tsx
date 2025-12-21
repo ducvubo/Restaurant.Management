@@ -125,20 +125,6 @@ const MaterialManagement = () => {
       width: 120,
     },
     {
-        title: 'Đơn Vị',
-        dataIndex: 'unitName',
-        key: 'unitName',
-        width: 100,
-        render: (text) => text || '-',
-    },
-    {
-        title: 'Đơn Giá',
-        dataIndex: 'unitPrice',
-        key: 'unitPrice',
-        width: 120,
-        render: (val) => val ? val.toLocaleString() : '-',
-    },
-    {
         title: 'Min',
         dataIndex: 'minStockLevel',
         key: 'minStockLevel',

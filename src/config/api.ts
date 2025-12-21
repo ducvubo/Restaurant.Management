@@ -35,12 +35,21 @@ export const API_ENDPOINTS = {
   // Unit Management
   UNIT_GET: '/management/units/get',
   UNIT_GET_ALL: '/management/units/get-all',
-  UNIT_BASE_UNITS: '/management/units/base-units',
   UNIT_CREATE: '/management/units/create',
   UNIT_UPDATE: '/management/units/update',
   UNIT_ACTIVATE: '/management/units/activate',
   UNIT_DEACTIVATE: '/management/units/deactivate',
   UNIT_LIST: '/management/units/list',
+  // Unit Conversion Management
+  UNIT_CONVERSION_LIST: '/management/unit-conversions/list',
+  UNIT_CONVERSION_CREATE: '/management/unit-conversions/create',
+  UNIT_CONVERSION_UPDATE: '/management/unit-conversions/update',
+  UNIT_CONVERSION_DELETE: '/management/unit-conversions/delete',
+  UNIT_CONVERSION_CONVERT: '/management/unit-conversions/convert',
+  UNIT_CONVERSION_MATERIAL_UNITS: '/management/unit-conversions/materials/units',
+  UNIT_CONVERSION_ADD_UNIT: '/management/unit-conversions/materials/units/add',
+  UNIT_CONVERSION_REMOVE_UNIT: '/management/unit-conversions/materials/units/remove',
+  UNIT_CONVERSION_SET_BASE: '/management/unit-conversions/materials/units/set-base',
   // Supplier Management
   SUPPLIER_GET: '/management/suppliers/get',
   SUPPLIER_GET_ALL: '/management/suppliers/get-all',
@@ -147,5 +156,16 @@ export const API_ENDPOINTS = {
     LOAD_BATCHES: '/management/inventory-counts/load-batches',
     COMPLETE: '/management/inventory-counts/complete',
     CANCEL: '/management/inventory-counts/cancel',
+  },
+
+  // Unit Conversion Management
+  UNIT_CONVERSION: {
+    BASE: '/management/unit-conversions',
+    LIST: '/management/unit-conversions',
+    CREATE: '/management/unit-conversions',
+    UPDATE: '/management/unit-conversions',
+    DELETE: '/management/unit-conversions',
+    CONVERT: '/management/unit-conversions/convert',
+    MATERIAL_UNITS: '/management/unit-conversions/materials',
   },
 } as const;

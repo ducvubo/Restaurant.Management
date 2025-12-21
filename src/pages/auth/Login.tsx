@@ -29,7 +29,7 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center  from-blue-500 to-purple-600">
       <Card className="w-full max-w-md shadow-2xl">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Quản Lý Nhà Hàng</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Quản Lý Kho</h1>
           <h2 className="text-xl text-gray-600">Đăng Nhập</h2>
         </div>
 

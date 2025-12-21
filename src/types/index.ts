@@ -161,12 +161,8 @@ export interface BranchListResponse {
 // Unit types
 export interface Unit {
   id: string; // UUID
-  code: string;
-  name: string;
-  symbol?: string;
-  baseUnitId?: string; // UUID
-  baseUnitName?: string;
-  conversionRate?: number;
+  code: string;        // KG, L, THUNG
+  name: string;        // Kilogram, Lít, Thùng
   description?: string;
   status: number;
   createdBy?: string;
@@ -178,9 +174,6 @@ export interface Unit {
 export interface CreateUnitRequest {
   code: string;
   name: string;
-  symbol?: string;
-  baseUnitId?: string;
-  conversionRate?: number;
   description?: string;
 }
 
@@ -188,9 +181,6 @@ export interface UpdateUnitRequest {
   id?: string;
   code: string;
   name: string;
-  symbol?: string;
-  baseUnitId?: string;
-  conversionRate?: number;
   description?: string;
 }
 
@@ -333,6 +323,7 @@ export interface Material {
     category: string;
     unitId: string;
     unitName?: string;
+    baseUnitSymbol?: string; // Symbol of base unit for this material
     unitPrice: number;
     minStockLevel: number;
     maxStockLevel: number;

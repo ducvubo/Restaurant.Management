@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Form, Input, Select, Button, Card, message, DatePicker, Table, InputNumber, Space, Row, Col } from 'antd';
+import { Form, Input, Select, Button, Card, message, DatePicker, Table, InputNumber, Space, Row, Col, Tag } from 'antd';
 import { PlusOutlined, DeleteOutlined, SaveOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { adjustmentService } from '@/services/adjustmentService';
 import { warehouseService } from '@/services/warehouseService';
 import { materialService } from '@/services/materialService';
-import { unitService } from '@/services/unitService';
 import { userService } from '@/services/userService';
+import unitConversionService, { type MaterialUnit } from '@/services/unitConversionService';
 import Api from '@/services/baseHttp';
 import { API_ENDPOINTS } from '@/config/api';
 import type { ResultMessage } from '@/types';
@@ -25,11 +25,6 @@ interface Material {
   id: string;
   name: string;
   unitId: string;
-}
-
-interface Unit {
-  id: string;
-  name: string;
 }
 
 interface ItemRow {
@@ -51,9 +46,9 @@ const AdjustmentForm = () => {
 
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
-  const [units, setUnits] = useState<Unit[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [stockQuantities, setStockQuantities] = useState<Record<string, number>>({});
+  const [materialUnits, setMaterialUnits] = useState<Record<string, MaterialUnit[]>>({});
   
   const [items, setItems] = useState<ItemRow[]>([
     { key: '1', materialId: '', unitId: '', quantity: 0, unitPrice: 0, notes: '' }
@@ -71,16 +66,14 @@ const AdjustmentForm = () => {
 
   const loadMetaData = async () => {
     try {
-      const [whData, matData, unitData, userData] = await Promise.all([
+      const [whData, matData, userData] = await Promise.all([
         warehouseService.getList({ page: 1, size: 100 }),
         materialService.getList({ page: 1, size: 100 }),
-        unitService.getAllUnits(),
         userService.getAllUsers(),
       ]);
 
       setWarehouses(whData.items);
       setMaterials(matData.items);
-      setUnits(unitData);
       setUsers(userData || []);
     } catch (e) {
       console.error(e);
@@ -122,6 +115,20 @@ const AdjustmentForm = () => {
           }
         }
       }
+      
+      // Load units for each material in items
+      const uniqueMaterialIds = [...new Set(loadedItems.map(item => item.materialId).filter(Boolean))];
+      for (const materialId of uniqueMaterialIds) {
+        try {
+          const units = await unitConversionService.getUnitsForMaterial(materialId);
+          setMaterialUnits(prev => ({
+            ...prev,
+            [materialId]: units
+          }));
+        } catch (error) {
+          console.error(`Failed to load units for material ${materialId}:`, error);
+        }
+      }
     } catch (error) {
       message.error('Lỗi khi tải dữ liệu');
     } finally {
@@ -131,18 +138,39 @@ const AdjustmentForm = () => {
 
   const handleMaterialChange = async (materialId: string, key: string) => {
     const material = materials.find(m => m.id === materialId);
-    if (material) {
+    
+    // Load allowed units for this material
+    try {
+      const allowedUnits = await unitConversionService.getUnitsForMaterial(materialId);
+      setMaterialUnits(prev => ({
+        ...prev,
+        [materialId]: allowedUnits
+      }));
+      
+      // Set default to base unit
+      const baseUnit = allowedUnits.find(u => u.isBaseUnit);
+      const defaultUnitId = baseUnit?.unitId || material?.unitId || '';
+      
       setItems(prev => prev.map(item => 
         item.key === key 
-          ? { ...item, materialId, unitId: material.unitId }
+          ? { ...item, materialId, unitId: defaultUnitId }
           : item
       ));
-
-      // Load stock quantity for this material
-      const warehouseId = form.getFieldValue('warehouseId');
-      if (warehouseId) {
-        await loadStockQuantity(warehouseId, materialId);
+    } catch (error) {
+      // Fallback to material's default unit
+      if (material) {
+        setItems(prev => prev.map(item => 
+          item.key === key 
+            ? { ...item, materialId, unitId: material.unitId }
+            : item
+        ));
       }
+    }
+
+    // Load stock quantity for this material
+    const warehouseId = form.getFieldValue('warehouseId');
+    if (warehouseId) {
+      await loadStockQuantity(warehouseId, materialId);
     }
   };
 
@@ -280,10 +308,26 @@ const AdjustmentForm = () => {
       title: 'Đơn Vị',
       dataIndex: 'unitId',
       key: 'unitId',
-      width: 100,
-      render: (value: string) => {
-        const unit = units.find(u => u.id === value);
-        return unit?.name || '-';
+      width: 150,
+      render: (value: string, record: ItemRow) => {
+        const allowedUnits = record.materialId ? materialUnits[record.materialId] || [] : [];
+        
+        return (
+          <Select
+            value={value || undefined}
+            placeholder="Đơn vị"
+            onChange={(val) => handleItemChange(record.key, 'unitId', val)}
+            style={{ width: '100%' }}
+            disabled={!record.materialId}
+          >
+            {allowedUnits.map(u => (
+              <Option key={u.unitId} value={u.unitId}>
+                      {u.unitSymbol} ({u.unitName})
+                {u.isBaseUnit && <Tag color="blue" style={{ marginLeft: 4 }}>Cơ sở</Tag>}
+              </Option>
+            ))}
+          </Select>
+        );
       },
     },
     {
@@ -295,7 +339,28 @@ const AdjustmentForm = () => {
         if (!warehouseId || !record.materialId) return '-';
         const stockKey = `${warehouseId}_${record.materialId}`;
         const stock = stockQuantities[stockKey];
-        return stock !== undefined ? stock.toLocaleString('vi-VN') : '-';
+        if (stock === undefined) return '-';
+        
+        // Get units for this material
+        const units = record.materialId ? materialUnits[record.materialId] || [] : [];
+        const baseUnit = units.find(u => u.isBaseUnit);
+        const selectedUnit = units.find(u => u.unitId === record.unitId);
+        
+        // Convert stock to selected unit if different from base unit
+        let displayStock = stock;
+        let displayUnitSymbol = baseUnit?.unitSymbol || '';
+        
+        if (selectedUnit && selectedUnit.conversionFactor && !selectedUnit.isBaseUnit) {
+          // Convert from base unit to selected unit
+          displayStock = stock / selectedUnit.conversionFactor;
+          displayUnitSymbol = selectedUnit.unitSymbol;
+        }
+        
+        return (
+          <span>
+            {displayStock.toFixed(3).replace(/\.?0+$/, '')} {displayUnitSymbol}
+          </span>
+        );
       },
     },
     {

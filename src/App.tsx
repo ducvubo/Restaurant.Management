@@ -51,6 +51,9 @@ import AdjustmentDetail from './pages/adjustment/AdjustmentDetail';
 import InventoryCountManagement from './pages/inventorycount/InventoryCountManagement';
 import InventoryCountForm from './pages/inventorycount/InventoryCountForm';
 import InventoryCountDetail from './pages/inventorycount/InventoryCountDetail';
+// Unit Conversion
+import UnitConversionManagement from './pages/unitconversion/UnitConversionManagement';
+import MaterialUnitConfig from './pages/unitconversion/MaterialUnitConfig';
 import { authService } from './services/authService';
 import { setNotificationApi } from './services/notificationService';
 
@@ -164,6 +167,9 @@ function AppContent() {
           <Route path="inventory-count/add" element={<InventoryCountForm />} />
           <Route path="inventory-count/:id" element={<InventoryCountDetail />} />
           <Route path="inventory-count/edit/:id" element={<InventoryCountForm />} />
+          
+          <Route path="unit-conversions" element={<UnitConversionManagement />} />
+          <Route path="material-unit-config" element={<MaterialUnitConfig />} />
         </Route>
       </Routes>
     </BrowserRouter>

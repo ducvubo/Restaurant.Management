@@ -1,19 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Form, Input, Button, Select, Space, InputNumber, message, Row, Col } from 'antd';
-import type { CreateMaterialRequest, MaterialCategory, Unit } from '@/types';
-import { unitService } from '@/services/unitService';
+import { Card, Form, Input, Button, Space, InputNumber, message, Row, Col } from 'antd';
+import type { CreateMaterialRequest, MaterialCategory } from '@/types';
 import { materialCategoryService } from '@/services/materialCategoryService';
 import { materialService } from '@/services/materialService';
+import SelectWithAdd from '@/components/SelectWithAdd';
+import QuickAddCategory from '@/components/quickAdd/QuickAddCategory';
 
-const { Option } = Select;
 const { TextArea } = Input;
 
 const AddMaterial = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [units, setUnits] = useState<Unit[]>([]);
   const [categories, setCategories] = useState<MaterialCategory[]>([]);
 
   useEffect(() => {
@@ -22,17 +21,25 @@ const AddMaterial = () => {
 
   const loadData = async () => {
     try {
-      const [unitData, categoryData] = await Promise.all([
-        unitService.getAllUnits(),
-        materialCategoryService.getAll()
-      ]);
-      setUnits(unitData);
-      setCategories(categoryData);
+      const categoryData = await materialCategoryService.getAll();
+      console.log('Loaded categories:', categoryData);
+      setCategories(categoryData || []);
     } catch (e) {
       console.error(e);
       message.error('Lỗi tải dữ liệu');
     }
   };
+
+  const handleAddCategory = async (values: any) => {
+    const result = await materialCategoryService.create(values);
+    if (result.success) {
+      await loadData(); // Reload categories
+      return result.result?.id;
+    }
+    throw new Error(result.message || 'Không thể tạo danh mục');
+  };
+
+
 
   const onFinish = async (values: any) => {
     try {
@@ -66,7 +73,7 @@ const AddMaterial = () => {
 
   return (
     <div>
-      <Card bodyStyle={{ padding: '16px' }}>
+      <Card styles={{ body: { padding: '16px' } }}>
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-xl font-bold m-0">Thêm Nguyên Vật Liệu Mới</h1>
           <Space>
@@ -119,25 +126,20 @@ const AddMaterial = () => {
                 rules={[{ required: true, message: 'Vui lòng chọn danh mục' }]}
                 style={{ marginBottom: '12px' }}
               >
-                <Select placeholder="Chọn danh mục">
-                  {categories.map(c => (
-                    <Option key={c.id} value={c.id}>{c.name}</Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                name="unitId"
-                label="Đơn Vị Tính"
-                rules={[{ required: true, message: 'Vui lòng chọn đơn vị' }]}
-                style={{ marginBottom: '12px' }}
-              >
-                <Select placeholder="Chọn đơn vị">
-                  {units.map(u => (
-                    <Option key={u.id} value={u.id}>{u.name}</Option>
-                  ))}
-                </Select>
+                <SelectWithAdd
+                  key={`category-${(categories || []).length}`}
+                  selectProps={{
+                    placeholder: "Chọn danh mục",
+                    options: (categories || []).map(c => ({ label: c.name, value: c.id })),
+                    showSearch: true,
+                    filterOption: (input, option) =>
+                      String(option?.label || '').toLowerCase().includes(input.toLowerCase())
+                  }}
+                  modalTitle="Thêm danh mục nhanh"
+                  onAdd={handleAddCategory}
+                  renderModalContent={() => <QuickAddCategory />}
+                  addButtonTooltip="Thêm danh mục mới"
+                />
               </Form.Item>
             </Col>
           </Row>

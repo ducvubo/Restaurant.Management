@@ -13,7 +13,7 @@ const Dashboard = () => {
               title="Tổng Số Người Dùng"
               value={1128}
               prefix={<UserOutlined />}
-              valueStyle={{ color: '#3f8600' }}
+              styles={{ content: { color: '#3f8600' } }}
             />
           </Card>
         </Col>
@@ -23,7 +23,7 @@ const Dashboard = () => {
               title="Người Dùng Hoạt Động"
               value={932}
               prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              styles={{ content: { color: '#1890ff' } }}
             />
           </Card>
         </Col>
@@ -33,16 +33,16 @@ const Dashboard = () => {
               title="Người Dùng Không Hoạt Động"
               value={196}
               prefix={<CloseCircleOutlined />}
-              valueStyle={{ color: '#cf1322' }}
+              styles={{ content: { color: '#cf1322' } }}
             />
           </Card>
         </Col>
       </Row>
 
       <Card>
-        <h2 className="text-xl font-semibold mb-4">Chào Mừng Đến Hệ Thống Quản Lý Nhà Hàng</h2>
+        <h2 className="text-xl font-semibold mb-4">Chào Mừng Đến Hệ Thống Quản Lý Kho</h2>
         <p className="text-gray-600">
-          Đây là bảng điều khiển để quản lý các hoạt động của nhà hàng.
+          Đây là bảng điều khiển để quản lý các hoạt động của kho.
         </p>
       </Card>
     </div>
