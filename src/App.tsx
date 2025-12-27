@@ -14,6 +14,10 @@ import UpdateUser from './pages/system/UpdateUser';
 import PolicyManagement from './pages/system/PolicyManagement';
 import AddPolicy from './pages/system/AddPolicy';
 import UpdatePolicy from './pages/system/UpdatePolicy';
+// Workflow
+import WorkflowManagement from './pages/system/WorkflowManagement';
+import AddWorkflow from './pages/system/AddWorkflow';
+import UpdateWorkflow from './pages/system/UpdateWorkflow';
 // Warehouse
 import WarehouseManagement from './pages/warehouse/WarehouseManagement';
 import AddWarehouse from './pages/warehouse/AddWarehouse';
@@ -91,7 +95,7 @@ function App() {
 
 function AppContent() {
   const { notification } = AntApp.useApp();
-  
+
   // Set notification API for use in baseHttp
   useEffect(() => {
     setNotificationApi(notification);
@@ -119,6 +123,9 @@ function AppContent() {
           <Route path="branches" element={<BranchManagement />} />
           <Route path="branches/add" element={<AddBranch />} />
           <Route path="branches/update" element={<UpdateBranch />} />
+          <Route path="workflows" element={<WorkflowManagement />} />
+          <Route path="workflows/add" element={<AddWorkflow />} />
+          <Route path="workflows/update" element={<UpdateWorkflow />} />
           <Route path="units" element={<UnitManagement />} />
           <Route path="units/add" element={<AddUnit />} />
           <Route path="units/update" element={<UpdateUnit />} />
@@ -126,15 +133,15 @@ function AppContent() {
           <Route path="suppliers/add" element={<AddSupplier />} />
           <Route path="suppliers/add" element={<AddSupplier />} />
           <Route path="suppliers/update" element={<UpdateSupplier />} />
-          
+
           <Route path="customers" element={<CustomerManagement />} />
           <Route path="customers/add" element={<AddCustomer />} />
           <Route path="customers/update" element={<UpdateCustomer />} />
-          
+
           <Route path="warehouses" element={<WarehouseManagement />} />
           <Route path="warehouses/add" element={<AddWarehouse />} />
           <Route path="warehouses/update" element={<UpdateWarehouse />} />
-          
+
           <Route path="material-categories" element={<MaterialCategoryManagement />} />
           <Route path="material-categories/add" element={<AddMaterialCategory />} />
           <Route path="material-categories/update" element={<UpdateMaterialCategory />} />
@@ -142,32 +149,32 @@ function AppContent() {
           <Route path="materials" element={<MaterialManagement />} />
           <Route path="materials/add" element={<AddMaterial />} />
           <Route path="materials/update" element={<UpdateMaterial />} />
-          
+
           <Route path="stock-in" element={<StockInManagement />} />
           <Route path="stock-in/add" element={<StockIn />} />
           <Route path="stock-in/:id" element={<StockInDetail />} />
           <Route path="stock-in/edit/:id" element={<StockIn />} />
-          
+
           <Route path="stock-out" element={<StockOutManagement />} />
           <Route path="stock-out/add" element={<StockOut />} />
           <Route path="stock-out/:id" element={<StockOutDetail />} />
           <Route path="stock-out/edit/:id" element={<StockOut />} />
-          
+
           <Route path="stock-transactions" element={<StockTransactionManagement />} />
           <Route path="stock-transactions/in" element={<StockIn />} />
           <Route path="stock-transactions/out" element={<StockOut />} />
           <Route path="inventory-ledger" element={<InventoryLedgerManagement />} />
-          
+
           <Route path="adjustment" element={<AdjustmentManagement />} />
           <Route path="adjustment/add" element={<AdjustmentForm />} />
           <Route path="adjustment/:id" element={<AdjustmentDetail />} />
           <Route path="adjustment/edit/:id" element={<AdjustmentForm />} />
-          
+
           <Route path="inventory-count" element={<InventoryCountManagement />} />
           <Route path="inventory-count/add" element={<InventoryCountForm />} />
           <Route path="inventory-count/:id" element={<InventoryCountDetail />} />
           <Route path="inventory-count/edit/:id" element={<InventoryCountForm />} />
-          
+
           <Route path="unit-conversions" element={<UnitConversionManagement />} />
           <Route path="material-unit-config" element={<MaterialUnitConfig />} />
         </Route>

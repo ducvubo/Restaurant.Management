@@ -168,4 +168,16 @@ export const API_ENDPOINTS = {
     CONVERT: '/management/unit-conversions/convert',
     MATERIAL_UNITS: '/management/unit-conversions/materials',
   },
+
+  // Workflow Management
+  WORKFLOW_CREATE: '/management/workflows/create',
+  WORKFLOW_UPDATE: '/management/workflows/update',
+  WORKFLOW_DELETE: '/management/workflows/delete',
+  WORKFLOW_GET: '/management/workflows/get',
+  WORKFLOW_LIST: '/management/workflows/list',
+  WORKFLOW_GET_ACTIVE_BY_TYPE: '/management/workflows/get-active-by-type',
+  WORKFLOW_ACTIVATE: '/management/workflows/activate',
+  WORKFLOW_DEACTIVATE: '/management/workflows/deactivate',
+  WORKFLOW_VALIDATE_BPMN: '/management/workflows/validate-bpmn',
+  WORKFLOW_EXTRACT_POLICY_IDS: '/management/workflows/extract-policy-ids',
 } as const;

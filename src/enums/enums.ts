@@ -26,6 +26,9 @@ export interface Enums {
   readonly stockOutType: StockOutTypeEnumCategory;
   readonly stockInType: StockInTypeEnumCategory;
   readonly adjustmentType: AdjustmentTypeEnumCategory;
+  readonly workflowType: WorkflowTypeEnumCategory;
+  readonly workflowActionType: WorkflowActionTypeEnumCategory;
+  readonly workflowStepType: WorkflowStepTypeEnumCategory;
 }
 
 export interface DataStatusEnumCategory extends EnumCategory {
@@ -100,6 +103,38 @@ export interface AdjustmentTypeEnumCategory extends EnumCategory {
 }
 
 export type AdjustmentTypeValue = 1 | 2 | 3;
+
+export interface WorkflowTypeEnumCategory extends EnumCategory {
+  readonly PURCHASE_REQUEST: EnumItem;
+  readonly STOCK_IN_APPROVAL: EnumItem;
+  readonly STOCK_OUT_REQUEST: EnumItem;
+  readonly STOCK_OUT_APPROVAL: EnumItem;
+  readonly ADJUSTMENT_REQUEST: EnumItem;
+  readonly ADJUSTMENT_APPROVAL: EnumItem;
+  readonly INVENTORY_COUNT_REQUEST: EnumItem;
+  readonly INVENTORY_COUNT_APPROVAL: EnumItem;
+  readonly MATERIAL_CREATION: EnumItem;
+  readonly USER_PROMOTION: EnumItem;
+}
+
+export type WorkflowTypeValue = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+
+export interface WorkflowActionTypeEnumCategory extends EnumCategory {
+  readonly NEXT_STEP: EnumItem;
+  readonly CONDITION: EnumItem;
+  readonly END: EnumItem;
+}
+
+export type WorkflowActionTypeValue = 1 | 2 | 3;
+
+export interface WorkflowStepTypeEnumCategory extends EnumCategory {
+  readonly START_EVENT: EnumItem;
+  readonly TASK: EnumItem;
+  readonly GATEWAY: EnumItem;
+  readonly END_EVENT: EnumItem;
+}
+
+export type WorkflowStepTypeValue = 1 | 2 | 3 | 4;
 
 const enumsData = {
   dataStatus: {
@@ -340,6 +375,148 @@ const enumsData = {
       member: "INVENTORY_COUNT",
       name: "",
       text: "Kiểm kê kho",
+      class: "",
+      guidId: ""
+    },
+  },
+  workflowType: {
+    PURCHASE_REQUEST: {
+      value: 1,
+      member: "PURCHASE_REQUEST",
+      name: "",
+      text: "Đề nghị mua sắm",
+      class: "",
+      guidId: ""
+    },
+    STOCK_IN_APPROVAL: {
+      value: 2,
+      member: "STOCK_IN_APPROVAL",
+      name: "",
+      text: "Phê duyệt nhập kho",
+      class: "",
+      guidId: ""
+    },
+    STOCK_OUT_REQUEST: {
+      value: 3,
+      member: "STOCK_OUT_REQUEST",
+      name: "",
+      text: "Đề nghị xuất kho",
+      class: "",
+      guidId: ""
+    },
+    STOCK_OUT_APPROVAL: {
+      value: 4,
+      member: "STOCK_OUT_APPROVAL",
+      name: "",
+      text: "Phê duyệt xuất kho",
+      class: "",
+      guidId: ""
+    },
+    ADJUSTMENT_REQUEST: {
+      value: 5,
+      member: "ADJUSTMENT_REQUEST",
+      name: "",
+      text: "Đề nghị điều chỉnh kho",
+      class: "",
+      guidId: ""
+    },
+    ADJUSTMENT_APPROVAL: {
+      value: 6,
+      member: "ADJUSTMENT_APPROVAL",
+      name: "",
+      text: "Phê duyệt điều chỉnh",
+      class: "",
+      guidId: ""
+    },
+    INVENTORY_COUNT_REQUEST: {
+      value: 7,
+      member: "INVENTORY_COUNT_REQUEST",
+      name: "",
+      text: "Đề nghị kiểm kê",
+      class: "",
+      guidId: ""
+    },
+    INVENTORY_COUNT_APPROVAL: {
+      value: 8,
+      member: "INVENTORY_COUNT_APPROVAL",
+      name: "",
+      text: "Phê duyệt kiểm kê",
+      class: "",
+      guidId: ""
+    },
+    MATERIAL_CREATION: {
+      value: 9,
+      member: "MATERIAL_CREATION",
+      name: "",
+      text: "Tạo nguyên vật liệu mới",
+      class: "",
+      guidId: ""
+    },
+    USER_PROMOTION: {
+      value: 10,
+      member: "USER_PROMOTION",
+      name: "",
+      text: "Đề nghị thăng chức nhân viên",
+      class: "",
+      guidId: ""
+    },
+  },
+  workflowActionType: {
+    NEXT_STEP: {
+      value: 1,
+      member: "NEXT_STEP",
+      name: "",
+      text: "Chuyển bước",
+      class: "",
+      guidId: ""
+    },
+    CONDITION: {
+      value: 2,
+      member: "CONDITION",
+      name: "",
+      text: "Điều kiện",
+      class: "",
+      guidId: ""
+    },
+    END: {
+      value: 3,
+      member: "END",
+      name: "",
+      text: "Kết thúc",
+      class: "",
+      guidId: ""
+    },
+  },
+  workflowStepType: {
+    START_EVENT: {
+      value: 1,
+      member: "START_EVENT",
+      name: "",
+      text: "Bắt đầu",
+      class: "",
+      guidId: ""
+    },
+    TASK: {
+      value: 2,
+      member: "TASK",
+      name: "",
+      text: "Bước",
+      class: "",
+      guidId: ""
+    },
+    GATEWAY: {
+      value: 3,
+      member: "GATEWAY",
+      name: "",
+      text: "Điều kiện",
+      class: "",
+      guidId: ""
+    },
+    END_EVENT: {
+      value: 4,
+      member: "END_EVENT",
+      name: "",
+      text: "Kết thúc",
       class: "",
       guidId: ""
     },

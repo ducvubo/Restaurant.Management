@@ -19,6 +19,7 @@ import {
   SwapOutlined,
   ReadOutlined,
   SettingOutlined,
+  ApartmentOutlined,
 } from '@ant-design/icons';
 
 const { Header, Sider, Content, Footer } = AntLayout;
@@ -56,80 +57,85 @@ const Layout = () => {
       label: <span className="font-semibold">Quản Lý Chi Nhánh</span>,
     },
     {
+      key: '/workflows',
+      icon: <ApartmentOutlined />,
+      label: <span className="font-semibold">Quản Lý Workflow</span>,
+    },
+    {
       key: 'warehouse',
       icon: <InboxOutlined />,
       label: <span className="font-semibold">Quản Lý Kho</span>,
       children: [
         {
-        key: '/warehouses',
-        icon: <BankOutlined />,
-        label: <span className="font-semibold">Kho</span>,
-      },
-      {
-        key: '/material-categories',
-        icon: <AppstoreOutlined />,
-        label: <span className="font-semibold">Danh Mục NVL</span>,
-      },
-      {
-        key: '/materials',
-        icon: <GoldOutlined />,
-        label: <span className="font-semibold">Nguyên Vật Liệu</span>,
-      },
-      {
-        key: '/stock-in',
-        icon: <SwapOutlined />,
-        label: <span className="font-semibold">Quản Lý Nhập Kho</span>,
-      },
-      {
-        key: '/stock-out',
-        icon: <SwapOutlined />,
-        label: <span className="font-semibold">Quản Lý Xuất Kho</span>,
-      },
-      // {
-      //   key: '/stock-transactions',
-      //   icon: <SwapOutlined />,
-      //   label: <span className="font-semibold">Nhập/Xuất Kho</span>,
-      // },
-      {
-        key: '/inventory-ledger',
-        icon: <ReadOutlined />,
-        label: <span className="font-semibold">Sổ Cái Tồn Kho</span>,
-      },
-      {
-        key: '/adjustment',
-        icon: <SwapOutlined />,
-        label: <span className="font-semibold">Điều Chỉnh Kho</span>,
-      },
-      {
-        key: '/inventory-count',
-        icon: <ReadOutlined />,
-        label: <span className="font-semibold">Kiểm Kê Kho</span>,
-      },
-      {
-        key: '/units',
-        icon: <AppstoreOutlined />,
-        label: <span className="font-semibold">Đơn Vị Tính</span>,
-      },
-      {
-        key: '/suppliers',
-        icon: <TeamOutlined />,
-        label: <span className="font-semibold">Nhà Cung Cấp</span>,
-      },
-      {
-        key: '/customers',
-        icon: <TeamOutlined />,
-        label: <span className="font-semibold">Khách Hàng</span>,
-      },
-      {
-        key: '/unit-conversions',
-        icon: <SettingOutlined />,
-        label: <span className="font-semibold">Quy Đổi Đơn Vị</span>,
-      },
-      {
-        key: '/material-unit-config',
-        icon: <SettingOutlined />,
-        label: <span className="font-semibold">Cấu Hình Đơn Vị NVL</span>,
-      },
+          key: '/warehouses',
+          icon: <BankOutlined />,
+          label: <span className="font-semibold">Kho</span>,
+        },
+        {
+          key: '/material-categories',
+          icon: <AppstoreOutlined />,
+          label: <span className="font-semibold">Danh Mục NVL</span>,
+        },
+        {
+          key: '/materials',
+          icon: <GoldOutlined />,
+          label: <span className="font-semibold">Nguyên Vật Liệu</span>,
+        },
+        {
+          key: '/stock-in',
+          icon: <SwapOutlined />,
+          label: <span className="font-semibold">Quản Lý Nhập Kho</span>,
+        },
+        {
+          key: '/stock-out',
+          icon: <SwapOutlined />,
+          label: <span className="font-semibold">Quản Lý Xuất Kho</span>,
+        },
+        // {
+        //   key: '/stock-transactions',
+        //   icon: <SwapOutlined />,
+        //   label: <span className="font-semibold">Nhập/Xuất Kho</span>,
+        // },
+        {
+          key: '/inventory-ledger',
+          icon: <ReadOutlined />,
+          label: <span className="font-semibold">Sổ Cái Tồn Kho</span>,
+        },
+        {
+          key: '/adjustment',
+          icon: <SwapOutlined />,
+          label: <span className="font-semibold">Điều Chỉnh Kho</span>,
+        },
+        {
+          key: '/inventory-count',
+          icon: <ReadOutlined />,
+          label: <span className="font-semibold">Kiểm Kê Kho</span>,
+        },
+        {
+          key: '/units',
+          icon: <AppstoreOutlined />,
+          label: <span className="font-semibold">Đơn Vị Tính</span>,
+        },
+        {
+          key: '/suppliers',
+          icon: <TeamOutlined />,
+          label: <span className="font-semibold">Nhà Cung Cấp</span>,
+        },
+        {
+          key: '/customers',
+          icon: <TeamOutlined />,
+          label: <span className="font-semibold">Khách Hàng</span>,
+        },
+        {
+          key: '/unit-conversions',
+          icon: <SettingOutlined />,
+          label: <span className="font-semibold">Quy Đổi Đơn Vị</span>,
+        },
+        {
+          key: '/material-unit-config',
+          icon: <SettingOutlined />,
+          label: <span className="font-semibold">Cấu Hình Đơn Vị NVL</span>,
+        },
       ],
     },
   ];
@@ -151,7 +157,7 @@ const Layout = () => {
         collapsed={collapsed}
         collapsible
         trigger={null}
-        style={{ 
+        style={{
           backgroundColor: '#ffffff',
           height: '100vh',
           position: 'fixed',
@@ -197,10 +203,10 @@ const Layout = () => {
             </Dropdown>
           )}
         </Header>
-       <Content className="p-2 bg-white" style={{ minHeight: 'calc(100vh - 103px)' }}>
+        <Content className="p-2 bg-white" style={{ minHeight: 'calc(100vh - 103px)' }}>
           <Outlet />
         </Content>
-        <Footer style={{  textAlign: 'center', backgroundColor: '#ffffff', borderTop: '1px solid #e5e7eb', padding: '10px 20px', position: 'sticky', bottom: 0, zIndex: 100 }}>
+        <Footer style={{ textAlign: 'center', backgroundColor: '#ffffff', borderTop: '1px solid #e5e7eb', padding: '10px 20px', position: 'sticky', bottom: 0, zIndex: 100 }}>
           © 2025 - Hệ thống quản lý kho
         </Footer>
       </AntLayout>
