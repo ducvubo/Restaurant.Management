@@ -647,19 +647,19 @@ export interface BpmnValidationResult {
   errors: string[];
 }
 
-// Workflow Type Enum (matching backend)
-export enum WorkflowType {
-  PURCHASE_REQUEST = 1,           // Đề nghị mua hàng
-  STOCK_IN_APPROVAL = 2,          // Phê duyệt nhập kho
-  STOCK_OUT_APPROVAL = 3,         // Phê duyệt xuất kho
-  STOCK_ADJUSTMENT_APPROVAL = 4,  // Phê duyệt điều chỉnh tồn kho
-  PRICE_CHANGE_APPROVAL = 5,      // Phê duyệt thay đổi giá
-  DISCOUNT_APPROVAL = 6,          // Phê duyệt giảm giá
-  PAYMENT_APPROVAL = 7,           // Phê duyệt thanh toán
-  REFUND_APPROVAL = 8,            // Phê duyệt hoàn tiền
-  TRANSFER_APPROVAL = 9,          // Phê duyệt chuyển kho
-  INVENTORY_COUNT_APPROVAL = 10   // Phê duyệt kiểm kê
-}
+// Workflow Type Const (matching backend)
+export const WorkflowType = {
+  PURCHASE_REQUEST: 1,           // Đề nghị mua hàng
+  STOCK_IN_APPROVAL: 2,          // Phê duyệt nhập kho
+  STOCK_OUT_APPROVAL: 3,         // Phê duyệt xuất kho
+  STOCK_ADJUSTMENT_APPROVAL: 4,  // Phê duyệt điều chỉnh tồn kho
+  PRICE_CHANGE_APPROVAL: 5,      // Phê duyệt thay đổi giá
+  DISCOUNT_APPROVAL: 6,          // Phê duyệt giảm giá
+  PAYMENT_APPROVAL: 7,           // Phê duyệt thanh toán
+  REFUND_APPROVAL: 8,            // Phê duyệt hoàn tiền
+  TRANSFER_APPROVAL: 9,          // Phê duyệt chuyển kho
+  INVENTORY_COUNT_APPROVAL: 10   // Phê duyệt kiểm kê
+} as const;
 
 // Helper function to get workflow type label
 export const getWorkflowTypeLabel = (type: number): string => {

@@ -180,4 +180,45 @@ export const API_ENDPOINTS = {
   WORKFLOW_DEACTIVATE: '/management/workflows/deactivate',
   WORKFLOW_VALIDATE_BPMN: '/management/workflows/validate-bpmn',
   WORKFLOW_EXTRACT_POLICY_IDS: '/management/workflows/extract-policy-ids',
+
+  // Purchase Requisition Management
+  PURCHASE_REQUISITION: {
+    CREATE: '/management/purchase-requisitions/create',
+    UPDATE: '/management/purchase-requisitions/update',
+    GET: '/management/purchase-requisitions/get',
+    LIST: '/management/purchase-requisitions/list',
+    DELETE: '/management/purchase-requisitions/delete',
+    SUBMIT: '/management/purchase-requisitions/submit',
+    APPROVE: '/management/purchase-requisitions/approve',
+    REJECT: '/management/purchase-requisitions/reject',
+    CANCEL: '/management/purchase-requisitions/cancel',
+  },
+
+  // RFQ (Request For Quotation) Management
+  RFQ: {
+    CREATE: '/management/rfqs/create',
+    CREATE_FROM_REQUISITION: '/management/rfqs/create-from-requisition',
+    UPDATE: '/management/rfqs/update',
+    GET: '/management/rfqs/get',
+    LIST: '/management/rfqs/list',
+    DELETE: '/management/rfqs/delete',
+    SEND: '/management/rfqs/send',
+    RECEIVE_QUOTATION: '/management/rfqs/receive-quotation',
+    ACCEPT: '/management/rfqs/accept',
+    REJECT: '/management/rfqs/reject',
+    CANCEL: '/management/rfqs/cancel',
+  },
+
+  // Purchase Order Management
+  PURCHASE_ORDER: {
+    CREATE: '/management/purchase-orders/create',
+    CREATE_FROM_RFQ: '/management/purchase-orders/create-from-rfq',
+    UPDATE: '/management/purchase-orders/update',
+    GET: '/management/purchase-orders/get',
+    LIST: '/management/purchase-orders/list',
+    DELETE: '/management/purchase-orders/delete',
+    CONFIRM: '/management/purchase-orders/confirm',
+    RECEIVE_GOODS: '/management/purchase-orders/receive-goods',
+    CANCEL: '/management/purchase-orders/cancel',
+  },
 } as const;

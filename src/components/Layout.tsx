@@ -138,6 +138,28 @@ const Layout = () => {
         },
       ],
     },
+    {
+      key: 'purchasing',
+      icon: <ShopOutlined />,
+      label: <span className="font-semibold">Quản Lý Mua Hàng</span>,
+      children: [
+        {
+          key: '/purchasing/requisitions',
+          icon: <ReadOutlined />,
+          label: <span className="font-semibold">Yêu Cầu Mua Hàng</span>,
+        },
+        {
+          key: '/purchasing/rfqs',
+          icon: <AppstoreOutlined />,
+          label: <span className="font-semibold">Báo Giá (RFQ)</span>,
+        },
+        {
+          key: '/purchasing/orders',
+          icon: <InboxOutlined />,
+          label: <span className="font-semibold">Đơn Đặt Hàng</span>,
+        },
+      ],
+    },
   ];
 
   const userMenuItems: MenuProps['items'] = [

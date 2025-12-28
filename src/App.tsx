@@ -58,6 +58,8 @@ import InventoryCountDetail from './pages/inventorycount/InventoryCountDetail';
 // Unit Conversion
 import UnitConversionManagement from './pages/unitconversion/UnitConversionManagement';
 import MaterialUnitConfig from './pages/unitconversion/MaterialUnitConfig';
+// Purchasing
+import { PurchaseRequisitionManagement, PurchaseRequisitionForm, RfqManagement, PurchaseOrderManagement, PurchaseOrderForm } from './pages/purchasing';
 import { authService } from './services/authService';
 import { setNotificationApi } from './services/notificationService';
 
@@ -177,6 +179,15 @@ function AppContent() {
 
           <Route path="unit-conversions" element={<UnitConversionManagement />} />
           <Route path="material-unit-config" element={<MaterialUnitConfig />} />
+
+          {/* Purchasing Module */}
+          <Route path="purchasing/requisitions" element={<PurchaseRequisitionManagement />} />
+          <Route path="purchasing/requisitions/add" element={<PurchaseRequisitionForm />} />
+          <Route path="purchasing/requisitions/update" element={<PurchaseRequisitionForm />} />
+          <Route path="purchasing/rfqs" element={<RfqManagement />} />
+          <Route path="purchasing/orders" element={<PurchaseOrderManagement />} />
+          <Route path="purchasing/orders/add" element={<PurchaseOrderForm />} />
+          <Route path="purchasing/orders/update" element={<PurchaseOrderForm />} />
         </Route>
       </Routes>
     </BrowserRouter>
