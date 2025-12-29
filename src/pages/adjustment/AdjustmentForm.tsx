@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Form, Input, Select, Button, Card, message, DatePicker, Table, InputNumber, Space, Row, Col, Tag } from 'antd';
-import { PlusOutlined, DeleteOutlined, SaveOutlined } from '@ant-design/icons';
+import { Form, Input, Select, Button, Card, message, DatePicker, Table, InputNumber, Space, Row, Col, Tag, Tooltip, Modal } from 'antd';
+import { PlusOutlined, DeleteOutlined, SaveOutlined, WarningOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { adjustmentService } from '@/services/adjustmentService';
 import { warehouseService } from '@/services/warehouseService';
 import { materialService } from '@/services/materialService';
 import { userService } from '@/services/userService';
+import { unitService } from '@/services/unitService';
 import unitConversionService, { type MaterialUnit } from '@/services/unitConversionService';
 import Api from '@/services/baseHttp';
 import { API_ENDPOINTS } from '@/config/api';
-import type { ResultMessage } from '@/types';
+import type { ResultMessage, Unit } from '@/types';
 import enums from '@/enums';
 
 const { Option } = Select;
@@ -49,6 +50,10 @@ const AdjustmentForm = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [stockQuantities, setStockQuantities] = useState<Record<string, number>>({});
   const [materialUnits, setMaterialUnits] = useState<Record<string, MaterialUnit[]>>({});
+  const [allUnits, setAllUnits] = useState<Unit[]>([]);
+  const [unitModalVisible, setUnitModalVisible] = useState(false);
+  const [currentMaterialForUnit, setCurrentMaterialForUnit] = useState<{ id: string; name: string } | null>(null);
+  const [selectedUnitId, setSelectedUnitId] = useState<string>('');
   
   const [items, setItems] = useState<ItemRow[]>([
     { key: '1', materialId: '', unitId: '', quantity: 0, unitPrice: 0, notes: '' }
@@ -66,15 +71,17 @@ const AdjustmentForm = () => {
 
   const loadMetaData = async () => {
     try {
-      const [whData, matData, userData] = await Promise.all([
+      const [whData, matData, userData, unitData] = await Promise.all([
         warehouseService.getList({ page: 1, size: 100 }),
         materialService.getList({ page: 1, size: 100 }),
         userService.getAllUsers(),
+        unitService.getAllUnits(),
       ]);
 
       setWarehouses(whData.items);
       setMaterials(matData.items);
       setUsers(userData || []);
+      setAllUnits(unitData);
     } catch (e) {
       console.error(e);
     }
@@ -279,6 +286,28 @@ const AdjustmentForm = () => {
     }
   };
 
+  const openAddUnitModal = (materialId: string, materialName: string) => {
+    setCurrentMaterialForUnit({ id: materialId, name: materialName });
+    setSelectedUnitId('');
+    setUnitModalVisible(true);
+  };
+
+  const handleAddUnitToMaterial = async () => {
+    if (!currentMaterialForUnit || !selectedUnitId) {
+      message.warning('Vui lòng chọn đơn vị');
+      return;
+    }
+    try {
+      await unitConversionService.addUnitToMaterial(currentMaterialForUnit.id, selectedUnitId, true);
+      message.success('Thêm đơn vị thành công');
+      const units = await unitConversionService.getUnitsForMaterial(currentMaterialForUnit.id);
+      setMaterialUnits(prev => ({ ...prev, [currentMaterialForUnit.id]: units }));
+      setUnitModalVisible(false);
+    } catch (e) {
+      // Error handled by interceptor
+    }
+  };
+
   const columns = [
     {
       title: 'Nguyên Liệu',
@@ -308,9 +337,30 @@ const AdjustmentForm = () => {
       title: 'Đơn Vị',
       dataIndex: 'unitId',
       key: 'unitId',
-      width: 150,
+      width: 170,
       render: (value: string, record: ItemRow) => {
         const allowedUnits = record.materialId ? materialUnits[record.materialId] || [] : [];
+        const material = materials.find(m => m.id === record.materialId);
+        
+        if (!record.materialId) {
+          return <span style={{ color: '#999' }}>-</span>;
+        }
+        
+        if (allowedUnits.length === 0) {
+          return (
+            <Tooltip title="Nguyên liệu này chưa có đơn vị. Nhấn để thêm.">
+              <Button 
+                type="link" 
+                danger 
+                size="small" 
+                icon={<WarningOutlined />}
+                onClick={() => openAddUnitModal(record.materialId, material?.name || '')}
+              >
+                Thêm ĐV
+              </Button>
+            </Tooltip>
+          );
+        }
         
         return (
           <Select
@@ -318,11 +368,10 @@ const AdjustmentForm = () => {
             placeholder="Đơn vị"
             onChange={(val) => handleItemChange(record.key, 'unitId', val)}
             style={{ width: '100%' }}
-            disabled={!record.materialId}
           >
             {allowedUnits.map(u => (
               <Option key={u.unitId} value={u.unitId}>
-                      {u.unitSymbol} ({u.unitName})
+                {u.unitSymbol} ({u.unitName})
                 {u.isBaseUnit && <Tag color="blue" style={{ marginLeft: 4 }}>Cơ sở</Tag>}
               </Option>
             ))}
@@ -574,6 +623,35 @@ const AdjustmentForm = () => {
           </div>
         </Form>
       </Card>
+
+      {/* Modal thêm nhanh đơn vị cho nguyên liệu */}
+      <Modal
+        title={`Thêm đơn vị cho: ${currentMaterialForUnit?.name || ''}`}
+        open={unitModalVisible}
+        onOk={handleAddUnitToMaterial}
+        onCancel={() => setUnitModalVisible(false)}
+        okText="Thêm"
+        cancelText="Hủy"
+      >
+        <div style={{ marginBottom: 16 }}>
+          <WarningOutlined style={{ color: '#faad14', marginRight: 8 }} />
+          Nguyên liệu này chưa có đơn vị. Vui lòng chọn đơn vị cơ sở cho nguyên liệu.
+        </div>
+        <Select
+          style={{ width: '100%' }}
+          placeholder="Chọn đơn vị"
+          value={selectedUnitId || undefined}
+          onChange={setSelectedUnitId}
+          showSearch
+          optionFilterProp="children"
+        >
+          {allUnits.map(u => (
+            <Option key={u.id} value={u.id}>
+              {u.code} - {u.name}
+            </Option>
+          ))}
+        </Select>
+      </Modal>
     </div>
   );
 };

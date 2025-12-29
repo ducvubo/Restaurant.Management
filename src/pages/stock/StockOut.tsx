@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Card, Form, Input, Button, Select, Space, InputNumber, message, DatePicker, Row, Col, Table, Divider, Tag } from 'antd';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Card, Form, Input, Button, Select, Space, InputNumber, message, DatePicker, Row, Col, Table, Divider, Tag, Tooltip, Modal } from 'antd';
+import { PlusOutlined, DeleteOutlined, WarningOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import type { Material, StockOutItemRequest, Warehouse } from '@/types';
+import type { Material, StockOutItemRequest, Warehouse, Unit } from '@/types';
 import type { Customer } from '@/services/customerService';
 import { warehouseService } from '@/services/warehouseService';
 import { materialService } from '@/services/materialService';
@@ -11,6 +11,7 @@ import { stockOutService } from '@/services/stockOutService';
 import { inventoryLedgerService } from '@/services/inventoryLedgerService';
 import { customerService } from '@/services/customerService';
 import { userService } from '@/services/userService';
+import { unitService } from '@/services/unitService';
 import unitConversionService, { type MaterialUnit } from '@/services/unitConversionService';
 import enumData from '@/enums/enums';
 
@@ -37,6 +38,10 @@ const StockOut = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [materialUnits, setMaterialUnits] = useState<Record<string, MaterialUnit[]>>({});
+  const [allUnits, setAllUnits] = useState<Unit[]>([]);
+  const [unitModalVisible, setUnitModalVisible] = useState(false);
+  const [currentMaterialForUnit, setCurrentMaterialForUnit] = useState<{ id: string; name: string } | null>(null);
+  const [selectedUnitId, setSelectedUnitId] = useState<string>('');
   
   const [stockOutType, setStockOutType] = useState<number | undefined>(undefined);
   const [selectedWarehouse, setSelectedWarehouse] = useState<string | undefined>(undefined);
@@ -57,17 +62,19 @@ const StockOut = () => {
 
   const loadMetaData = async () => {
     try {
-      const [whData, matData, custData, userData] = await Promise.all([
+      const [whData, matData, custData, userData, unitData] = await Promise.all([
         warehouseService.getList({ page: 1, size: 100 }),
         materialService.getList({ page: 1, size: 100 }),
         customerService.getList(),
         userService.getAllUsers(),
+        unitService.getAllUnits(),
       ]);
 
       setWarehouses(whData.items);
       setMaterials(matData.items);
       setCustomers(custData.items);
       setUsers(userData || []);
+      setAllUnits(unitData);
     } catch (e) {
       console.error(e);
     }
@@ -332,6 +339,28 @@ const StockOut = () => {
     }
   };
 
+  const openAddUnitModal = (materialId: string, materialName: string) => {
+    setCurrentMaterialForUnit({ id: materialId, name: materialName });
+    setSelectedUnitId('');
+    setUnitModalVisible(true);
+  };
+
+  const handleAddUnitToMaterial = async () => {
+    if (!currentMaterialForUnit || !selectedUnitId) {
+      message.warning('Vui lòng chọn đơn vị');
+      return;
+    }
+    try {
+      await unitConversionService.addUnitToMaterial(currentMaterialForUnit.id, selectedUnitId, true);
+      message.success('Thêm đơn vị thành công');
+      const units = await unitConversionService.getUnitsForMaterial(currentMaterialForUnit.id);
+      setMaterialUnits(prev => ({ ...prev, [currentMaterialForUnit.id]: units }));
+      setUnitModalVisible(false);
+    } catch (e) {
+      // Error handled by interceptor
+    }
+  };
+
   const columns = [
     {
       title: 'STT',
@@ -362,9 +391,30 @@ const StockOut = () => {
     {
       title: 'Đơn Vị',
       dataIndex: 'unitId',
-      width: 150,
+      width: 170,
       render: (value: string, record: ItemRow) => {
         const allowedUnits = record.materialId ? materialUnits[record.materialId] || [] : [];
+        const material = materials.find(m => m.id === record.materialId);
+        
+        if (!record.materialId) {
+          return <span style={{ color: '#999' }}>-</span>;
+        }
+        
+        if (allowedUnits.length === 0) {
+          return (
+            <Tooltip title="Nguyên liệu này chưa có đơn vị. Nhấn để thêm.">
+              <Button 
+                type="link" 
+                danger 
+                size="small" 
+                icon={<WarningOutlined />}
+                onClick={() => openAddUnitModal(record.materialId, material?.name || '')}
+              >
+                Thêm ĐV
+              </Button>
+            </Tooltip>
+          );
+        }
         
         return (
           <Select
@@ -372,7 +422,6 @@ const StockOut = () => {
             placeholder="Đơn vị"
             onChange={(val) => handleItemChange(record.key, 'unitId', val)}
             style={{ width: '100%' }}
-            disabled={!record.materialId}
           >
             {allowedUnits.map(u => (
               <Option key={u.unitId} value={u.unitId}>
@@ -811,6 +860,35 @@ const StockOut = () => {
           />
         </div>
       </Card>
+
+      {/* Modal thêm nhanh đơn vị cho nguyên liệu */}
+      <Modal
+        title={`Thêm đơn vị cho: ${currentMaterialForUnit?.name || ''}`}
+        open={unitModalVisible}
+        onOk={handleAddUnitToMaterial}
+        onCancel={() => setUnitModalVisible(false)}
+        okText="Thêm"
+        cancelText="Hủy"
+      >
+        <div style={{ marginBottom: 16 }}>
+          <WarningOutlined style={{ color: '#faad14', marginRight: 8 }} />
+          Nguyên liệu này chưa có đơn vị. Vui lòng chọn đơn vị cơ sở cho nguyên liệu.
+        </div>
+        <Select
+          style={{ width: '100%' }}
+          placeholder="Chọn đơn vị"
+          value={selectedUnitId || undefined}
+          onChange={setSelectedUnitId}
+          showSearch
+          optionFilterProp="children"
+        >
+          {allUnits.map(u => (
+            <Option key={u.id} value={u.id}>
+              {u.code} - {u.name}
+            </Option>
+          ))}
+        </Select>
+      </Modal>
     </div>
   );
 };

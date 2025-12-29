@@ -29,6 +29,10 @@ export interface Enums {
   readonly workflowType: WorkflowTypeEnumCategory;
   readonly workflowActionType: WorkflowActionTypeEnumCategory;
   readonly workflowStepType: WorkflowStepTypeEnumCategory;
+  readonly purchaseRequisitionStatus: PurchaseRequisitionStatusEnumCategory;
+  readonly rfqStatus: RfqStatusEnumCategory;
+  readonly purchaseOrderStatus: PurchaseOrderStatusEnumCategory;
+  readonly purchasePriority: PurchasePriorityEnumCategory;
 }
 
 export interface DataStatusEnumCategory extends EnumCategory {
@@ -135,6 +139,48 @@ export interface WorkflowStepTypeEnumCategory extends EnumCategory {
 }
 
 export type WorkflowStepTypeValue = 1 | 2 | 3 | 4;
+
+export interface PurchaseRequisitionStatusEnumCategory extends EnumCategory {
+  readonly DRAFT: EnumItem;
+  readonly PENDING_APPROVAL: EnumItem;
+  readonly APPROVED: EnumItem;
+  readonly REJECTED: EnumItem;
+  readonly CONVERTED: EnumItem;
+  readonly CANCELLED: EnumItem;
+}
+
+export type PurchaseRequisitionStatusValue = 1 | 2 | 3 | 4 | 5 | -1;
+
+export interface RfqStatusEnumCategory extends EnumCategory {
+  readonly DRAFT: EnumItem;
+  readonly SENT: EnumItem;
+  readonly RECEIVED: EnumItem;
+  readonly ACCEPTED: EnumItem;
+  readonly REJECTED: EnumItem;
+  readonly EXPIRED: EnumItem;
+  readonly CANCELLED: EnumItem;
+}
+
+export type RfqStatusValue = 1 | 2 | 3 | 4 | 5 | 6 | -1;
+
+export interface PurchaseOrderStatusEnumCategory extends EnumCategory {
+  readonly DRAFT: EnumItem;
+  readonly CONFIRMED: EnumItem;
+  readonly PARTIALLY_RECEIVED: EnumItem;
+  readonly COMPLETED: EnumItem;
+  readonly CANCELLED: EnumItem;
+}
+
+export type PurchaseOrderStatusValue = 1 | 2 | 3 | 4 | -1;
+
+export interface PurchasePriorityEnumCategory extends EnumCategory {
+  readonly LOW: EnumItem;
+  readonly NORMAL: EnumItem;
+  readonly HIGH: EnumItem;
+  readonly URGENT: EnumItem;
+}
+
+export type PurchasePriorityValue = 1 | 2 | 3 | 4;
 
 const enumsData = {
   dataStatus: {
@@ -517,6 +563,190 @@ const enumsData = {
       member: "END_EVENT",
       name: "",
       text: "Kết thúc",
+      class: "",
+      guidId: ""
+    },
+  },
+  purchaseRequisitionStatus: {
+    DRAFT: {
+      value: 1,
+      member: "DRAFT",
+      name: "",
+      text: "Nháp",
+      class: "",
+      guidId: ""
+    },
+    PENDING_APPROVAL: {
+      value: 2,
+      member: "PENDING_APPROVAL",
+      name: "",
+      text: "Chờ phê duyệt",
+      class: "",
+      guidId: ""
+    },
+    APPROVED: {
+      value: 3,
+      member: "APPROVED",
+      name: "",
+      text: "Đã phê duyệt",
+      class: "",
+      guidId: ""
+    },
+    REJECTED: {
+      value: 4,
+      member: "REJECTED",
+      name: "",
+      text: "Từ chối",
+      class: "",
+      guidId: ""
+    },
+    CONVERTED: {
+      value: 5,
+      member: "CONVERTED",
+      name: "",
+      text: "Đã chuyển thành PO",
+      class: "",
+      guidId: ""
+    },
+    CANCELLED: {
+      value: -1,
+      member: "CANCELLED",
+      name: "",
+      text: "Đã hủy",
+      class: "",
+      guidId: ""
+    },
+  },
+  rfqStatus: {
+    DRAFT: {
+      value: 1,
+      member: "DRAFT",
+      name: "",
+      text: "Nháp",
+      class: "",
+      guidId: ""
+    },
+    SENT: {
+      value: 2,
+      member: "SENT",
+      name: "",
+      text: "Đã gửi",
+      class: "",
+      guidId: ""
+    },
+    RECEIVED: {
+      value: 3,
+      member: "RECEIVED",
+      name: "",
+      text: "Đã nhận báo giá",
+      class: "",
+      guidId: ""
+    },
+    ACCEPTED: {
+      value: 4,
+      member: "ACCEPTED",
+      name: "",
+      text: "Đã chấp nhận",
+      class: "",
+      guidId: ""
+    },
+    REJECTED: {
+      value: 5,
+      member: "REJECTED",
+      name: "",
+      text: "Từ chối",
+      class: "",
+      guidId: ""
+    },
+    EXPIRED: {
+      value: 6,
+      member: "EXPIRED",
+      name: "",
+      text: "Hết hạn",
+      class: "",
+      guidId: ""
+    },
+    CANCELLED: {
+      value: -1,
+      member: "CANCELLED",
+      name: "",
+      text: "Đã hủy",
+      class: "",
+      guidId: ""
+    },
+  },
+  purchaseOrderStatus: {
+    DRAFT: {
+      value: 1,
+      member: "DRAFT",
+      name: "",
+      text: "Nháp",
+      class: "",
+      guidId: ""
+    },
+    CONFIRMED: {
+      value: 2,
+      member: "CONFIRMED",
+      name: "",
+      text: "Đã xác nhận",
+      class: "",
+      guidId: ""
+    },
+    PARTIALLY_RECEIVED: {
+      value: 3,
+      member: "PARTIALLY_RECEIVED",
+      name: "",
+      text: "Nhận một phần",
+      class: "",
+      guidId: ""
+    },
+    COMPLETED: {
+      value: 4,
+      member: "COMPLETED",
+      name: "",
+      text: "Hoàn thành",
+      class: "",
+      guidId: ""
+    },
+    CANCELLED: {
+      value: -1,
+      member: "CANCELLED",
+      name: "",
+      text: "Đã hủy",
+      class: "",
+      guidId: ""
+    },
+  },
+  purchasePriority: {
+    LOW: {
+      value: 1,
+      member: "LOW",
+      name: "",
+      text: "Thấp",
+      class: "",
+      guidId: ""
+    },
+    NORMAL: {
+      value: 2,
+      member: "NORMAL",
+      name: "",
+      text: "Bình thường",
+      class: "",
+      guidId: ""
+    },
+    HIGH: {
+      value: 3,
+      member: "HIGH",
+      name: "",
+      text: "Cao",
+      class: "",
+      guidId: ""
+    },
+    URGENT: {
+      value: 4,
+      member: "URGENT",
+      name: "",
+      text: "Khẩn cấp",
       class: "",
       guidId: ""
     },

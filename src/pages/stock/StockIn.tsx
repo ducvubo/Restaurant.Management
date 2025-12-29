@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Card, Form, Input, Button, Select, Space, InputNumber, message, DatePicker, Row, Col, Table, Tag } from 'antd';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Card, Form, Input, Button, Select, Space, InputNumber, message, DatePicker, Row, Col, Table, Tag, Tooltip, Modal } from 'antd';
+import { PlusOutlined, DeleteOutlined, WarningOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import type { Material, StockInRequest, StockInItemRequest, Supplier, Warehouse } from '@/types';
+import type { Material, StockInRequest, StockInItemRequest, Supplier, Warehouse, Unit } from '@/types';
 import { warehouseService } from '@/services/warehouseService';
 import { materialService } from '@/services/materialService';
 import { supplierService } from '@/services/supplierService';
 import { stockInService } from '@/services/stockInService';
 import { userService } from '@/services/userService';
+import { unitService } from '@/services/unitService';
 import unitConversionService, { type MaterialUnit } from '@/services/unitConversionService';
 
 const { Option } = Select;
@@ -31,6 +32,10 @@ const StockIn = () => {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [materialUnits, setMaterialUnits] = useState<Record<string, MaterialUnit[]>>({});
+  const [allUnits, setAllUnits] = useState<Unit[]>([]);
+  const [unitModalVisible, setUnitModalVisible] = useState(false);
+  const [currentMaterialForUnit, setCurrentMaterialForUnit] = useState<{ id: string; name: string } | null>(null);
+  const [selectedUnitId, setSelectedUnitId] = useState<string>('');
   
   const [items, setItems] = useState<ItemRow[]>([
     { key: '1', materialId: '', unitId: '', quantity: 0, unitPrice: 0 }
@@ -48,17 +53,19 @@ const StockIn = () => {
 
   const loadMetaData = async () => {
     try {
-      const [whData, matData, supData, userData] = await Promise.all([
+      const [whData, matData, supData, userData, unitData] = await Promise.all([
         warehouseService.getList({ page: 1, size: 100 }),
         materialService.getList({ page: 1, size: 100 }),
         supplierService.getAllSuppliers(),
         userService.getAllUsers(),
+        unitService.getAllUnits(),
       ]);
 
       setWarehouses(whData.items);
       setMaterials(matData.items);
       setSuppliers(supData);
       setUsers(userData || []);
+      setAllUnits(unitData);
     } catch (e) {
       console.error(e);
     }
@@ -219,6 +226,28 @@ const StockIn = () => {
     }
   };
 
+  const openAddUnitModal = (materialId: string, materialName: string) => {
+    setCurrentMaterialForUnit({ id: materialId, name: materialName });
+    setSelectedUnitId('');
+    setUnitModalVisible(true);
+  };
+
+  const handleAddUnitToMaterial = async () => {
+    if (!currentMaterialForUnit || !selectedUnitId) {
+      message.warning('Vui lòng chọn đơn vị');
+      return;
+    }
+    try {
+      await unitConversionService.addUnitToMaterial(currentMaterialForUnit.id, selectedUnitId, true);
+      message.success('Thêm đơn vị thành công');
+      const units = await unitConversionService.getUnitsForMaterial(currentMaterialForUnit.id);
+      setMaterialUnits(prev => ({ ...prev, [currentMaterialForUnit.id]: units }));
+      setUnitModalVisible(false);
+    } catch (e) {
+      // Error handled by interceptor
+    }
+  };
+
   const columns = [
     {
       title: 'STT',
@@ -249,9 +278,30 @@ const StockIn = () => {
     {
       title: 'Đơn Vị',
       dataIndex: 'unitId',
-      width: 150,
+      width: 170,
       render: (value: string, record: ItemRow) => {
         const allowedUnits = record.materialId ? materialUnits[record.materialId] || [] : [];
+        const material = materials.find(m => m.id === record.materialId);
+        
+        if (!record.materialId) {
+          return <span style={{ color: '#999' }}>-</span>;
+        }
+        
+        if (allowedUnits.length === 0) {
+          return (
+            <Tooltip title="Nguyên liệu này chưa có đơn vị. Nhấn để thêm.">
+              <Button 
+                type="link" 
+                danger 
+                size="small" 
+                icon={<WarningOutlined />}
+                onClick={() => openAddUnitModal(record.materialId, material?.name || '')}
+              >
+                Thêm ĐV
+              </Button>
+            </Tooltip>
+          );
+        }
         
         return (
           <Select
@@ -259,9 +309,8 @@ const StockIn = () => {
             placeholder="Đơn vị"
             onChange={(val) => handleItemChange(record.key, 'unitId', val)}
             style={{ width: '100%' }}
-            disabled={!record.materialId}
           >
-            {Array.isArray(allowedUnits) && allowedUnits.map(u => (
+            {allowedUnits.map(u => (
               <Option key={u.unitId} value={u.unitId}>
                 {u.unitSymbol} ({u.unitName})
                 {u.isBaseUnit && <Tag color="blue" style={{ marginLeft: 4 }}>Cơ sở</Tag>}
@@ -473,6 +522,35 @@ const StockIn = () => {
           </div>
         </div>
       </Card>
+
+      {/* Modal thêm nhanh đơn vị cho nguyên liệu */}
+      <Modal
+        title={`Thêm đơn vị cho: ${currentMaterialForUnit?.name || ''}`}
+        open={unitModalVisible}
+        onOk={handleAddUnitToMaterial}
+        onCancel={() => setUnitModalVisible(false)}
+        okText="Thêm"
+        cancelText="Hủy"
+      >
+        <div style={{ marginBottom: 16 }}>
+          <WarningOutlined style={{ color: '#faad14', marginRight: 8 }} />
+          Nguyên liệu này chưa có đơn vị. Vui lòng chọn đơn vị cơ sở cho nguyên liệu.
+        </div>
+        <Select
+          style={{ width: '100%' }}
+          placeholder="Chọn đơn vị"
+          value={selectedUnitId || undefined}
+          onChange={setSelectedUnitId}
+          showSearch
+          optionFilterProp="children"
+        >
+          {allUnits.map(u => (
+            <Option key={u.id} value={u.id}>
+              {u.code} - {u.name}
+            </Option>
+          ))}
+        </Select>
+      </Modal>
     </div>
   );
 };
