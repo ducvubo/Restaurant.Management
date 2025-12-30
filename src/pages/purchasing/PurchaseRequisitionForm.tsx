@@ -209,10 +209,8 @@ const PurchaseRequisitionForm = () => {
       if (isEditMode && id) {
         requestData.id = id;
         await purchaseRequisitionService.update(id, requestData);
-        message.success('Cập nhật thành công');
       } else {
         await purchaseRequisitionService.create(requestData);
-        message.success('Tạo yêu cầu thành công');
       }
       
       navigate('/purchasing/requisitions');
@@ -236,8 +234,6 @@ const PurchaseRequisitionForm = () => {
     }
     try {
       await unitConversionService.addUnitToMaterial(currentMaterialForUnit.id, selectedUnitId, true);
-      message.success('Thêm đơn vị thành công');
-      // Reload units for this material
       const units = await unitConversionService.getUnitsForMaterial(currentMaterialForUnit.id);
       setMaterialUnits(prev => ({ ...prev, [currentMaterialForUnit.id]: units }));
       setUnitModalVisible(false);
@@ -266,7 +262,7 @@ const PurchaseRequisitionForm = () => {
         >
           {materials.map(m => (
             <Option key={m.id} value={m.id}>
-              {m.code} - {m.name}
+              {m.name}
             </Option>
           ))}
         </Select>

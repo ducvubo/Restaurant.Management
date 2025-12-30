@@ -59,7 +59,7 @@ const Layout = () => {
     {
       key: '/workflows',
       icon: <ApartmentOutlined />,
-      label: <span className="font-semibold">Quản Lý Workflow</span>,
+      label: <span className="font-semibold">Quản Lý quy trình</span>,
     },
     {
       key: 'warehouse',
@@ -190,9 +190,9 @@ const Layout = () => {
         }}
         theme="light"
       >
-        <div className="h-[55px] flex items-center justify-center" style={{ backgroundColor: '#2e4baa', borderColor: '#e5e7eb', flexShrink: 0 }}>
+        {/* <div className="h-[55px] flex items-center justify-center" style={{ backgroundColor: '#2e4baa', borderColor: '#e5e7eb', flexShrink: 0 }}>
           {!collapsed && <h2 className="text-xl font-bold m-0" style={{ color: '#ffffff' }}>Quản Lý Kho</h2>}
-        </div>
+        </div> */}
         <div className="menu-scroll-wrapper" style={{ height: 'calc(100vh - 55px)', minHeight: 0, overflowY: 'auto', overflowX: 'hidden' }}>
           <Menu
             theme="light"
@@ -214,7 +214,7 @@ const Layout = () => {
               onClick={() => setCollapsed(!collapsed)}
               style={{ color: '#ffffff', fontSize: '16px' }}
             />
-            <div className="text-base font-semibold" style={{ color: '#ffffff' }}>Hệ Thống Quản Lý Kho</div>
+            {/* <div className="text-base font-semibold" style={{ color: '#ffffff' }}>Hệ Thống Quản Lý Kho</div> */}
           </Space>
           {user && (
             <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
@@ -228,9 +228,9 @@ const Layout = () => {
         <Content className="p-2 bg-white" style={{ minHeight: 'calc(100vh - 103px)' }}>
           <Outlet />
         </Content>
-        <Footer style={{ textAlign: 'center', backgroundColor: '#ffffff', borderTop: '1px solid #e5e7eb', padding: '10px 20px', position: 'sticky', bottom: 0, zIndex: 100 }}>
+        {/* <Footer style={{ textAlign: 'center', backgroundColor: '#ffffff', borderTop: '1px solid #e5e7eb', padding: '10px 20px', position: 'sticky', bottom: 0, zIndex: 100 }}>
           © 2025 - Hệ thống quản lý kho
-        </Footer>
+        </Footer> */}
       </AntLayout>
     </AntLayout>
   );

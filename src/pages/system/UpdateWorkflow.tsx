@@ -128,7 +128,7 @@ const UpdateWorkflow = () => {
             <Card bodyStyle={{ padding: '16px' }}>
                 <div className="flex items-center justify-between mb-2">
                     <h1 className="text-xl font-bold m-0">
-                        Cập Nhật Workflow {workflow && `(v${workflow.version})`}
+                        Cập Nhật quy trình {workflow && `(v${workflow.version})`}
                     </h1>
                     <Space>
                         <Button onClick={() => navigate('/workflows')}>

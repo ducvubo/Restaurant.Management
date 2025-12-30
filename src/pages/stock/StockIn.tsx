@@ -239,7 +239,6 @@ const StockIn = () => {
     }
     try {
       await unitConversionService.addUnitToMaterial(currentMaterialForUnit.id, selectedUnitId, true);
-      message.success('Thêm đơn vị thành công');
       const units = await unitConversionService.getUnitsForMaterial(currentMaterialForUnit.id);
       setMaterialUnits(prev => ({ ...prev, [currentMaterialForUnit.id]: units }));
       setUnitModalVisible(false);

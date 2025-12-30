@@ -181,6 +181,14 @@ export const API_ENDPOINTS = {
   WORKFLOW_VALIDATE_BPMN: '/management/workflows/validate-bpmn',
   WORKFLOW_EXTRACT_POLICY_IDS: '/management/workflows/extract-policy-ids',
 
+  // Workflow Notes Management
+  WORKFLOW_NOTE: {
+    LIST: '/management/workflow-notes/list',
+    CREATE: '/management/workflow-notes/create',
+    UPDATE: '/management/workflow-notes/update',
+    DELETE: '/management/workflow-notes/delete',
+  },
+
   // Purchase Requisition Management
   PURCHASE_REQUISITION: {
     CREATE: '/management/purchase-requisitions/create',
@@ -192,6 +200,10 @@ export const API_ENDPOINTS = {
     APPROVE: '/management/purchase-requisitions/approve',
     REJECT: '/management/purchase-requisitions/reject',
     CANCEL: '/management/purchase-requisitions/cancel',
+    // Workflow APIs
+    WORKFLOW_STATE: '/management/purchase-requisitions/workflow-state',
+    WORKFLOW_ACTION: '/management/purchase-requisitions/workflow-action',
+    HISTORY: '/management/purchase-requisitions/history',
   },
 
   // RFQ (Request For Quotation) Management

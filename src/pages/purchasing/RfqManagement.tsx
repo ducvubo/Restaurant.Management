@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, Button, Space, Tag, Card, Modal, Tooltip, Input, Select, message } from 'antd';
+import { Table, Button, Space, Tag, Card, Modal, Tooltip, Input, Select} from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { 
   ReloadOutlined, 
@@ -92,7 +92,6 @@ const RfqManagement = () => {
         try {
           const result = await rfqService.delete(record.id);
           if (result.success) {
-            message.success('Xóa thành công');
             loadRfqs();
           }
         } catch (err) {
@@ -112,7 +111,6 @@ const RfqManagement = () => {
         try {
           const result = await rfqService.send(record.id);
           if (result.success) {
-            message.success('Đã gửi RFQ');
             loadRfqs();
           }
         } catch (err) {
@@ -132,7 +130,6 @@ const RfqManagement = () => {
         try {
           const result = await rfqService.accept(record.id);
           if (result.success) {
-            message.success('Đã chấp nhận báo giá');
             loadRfqs();
           }
         } catch (err) {
@@ -153,7 +150,6 @@ const RfqManagement = () => {
         try {
           const result = await rfqService.reject(record.id);
           if (result.success) {
-            message.success('Đã từ chối báo giá');
             loadRfqs();
           }
         } catch (err) {
@@ -174,7 +170,6 @@ const RfqManagement = () => {
         try {
           const result = await rfqService.cancel(record.id);
           if (result.success) {
-            message.success('Đã hủy RFQ');
             loadRfqs();
           }
         } catch (err) {
@@ -194,7 +189,6 @@ const RfqManagement = () => {
         try {
           const result = await purchaseOrderService.createFromRfq(record.id);
           if (result.success) {
-            message.success('Đã tạo đơn đặt hàng');
             navigate('/purchasing/orders');
           }
         } catch (err) {

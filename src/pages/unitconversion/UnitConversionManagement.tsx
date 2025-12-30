@@ -61,10 +61,8 @@ const UnitConversionManagement: React.FC = () => {
     try {
       if (editingId) {
         await unitConversionService.update(editingId, values);
-        message.success('Cập nhật thành công');
       } else {
         await unitConversionService.create(values);
-        message.success('Tạo mới thành công');
       }
       setModalVisible(false);
       form.resetFields();
@@ -81,11 +79,10 @@ const UnitConversionManagement: React.FC = () => {
       content: 'Bạn có chắc muốn xóa hệ số chuyển đổi này?',
       onOk: async () => {
         try {
-          const result = await unitConversionService.delete(id);
-          message.success(result.message || 'Xóa thành công');
+          await unitConversionService.delete(id);
           loadData();
         } catch (error: any) {
-          message.error(error.response?.data?.message || 'Không thể xóa');
+          console.log(error);
         }
       }
     });

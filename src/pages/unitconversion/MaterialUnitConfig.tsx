@@ -70,7 +70,6 @@ const MaterialUnitConfig: React.FC = () => {
       
       // Check if API returned success
       if (response.success) {
-        message.success('Thêm đơn vị thành công');
         
         // Only close modal and reset on success
         setModalVisible(false);
@@ -96,10 +95,9 @@ const MaterialUnitConfig: React.FC = () => {
       onOk: async () => {
         try {
           await unitConversionService.removeUnitFromMaterial(selectedMaterial, unitId);
-          message.success('Xóa đơn vị thành công');
           loadMaterialUnits();
         } catch (error: any) {
-          message.error(error.response?.data?.message || 'Không thể xóa');
+          console.log(error);
         }
       }
     });
@@ -114,10 +112,9 @@ const MaterialUnitConfig: React.FC = () => {
       onOk: async () => {
         try {
           await unitConversionService.setBaseUnit(selectedMaterial, unitId);
-          message.success('Đặt đơn vị cơ sở thành công');
           loadMaterialUnits();
         } catch (error: any) {
-          message.error(error.response?.data?.message || 'Không thể đặt đơn vị cơ sở');
+          console.log(error);
         }
       }
     });

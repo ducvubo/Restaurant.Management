@@ -226,7 +226,7 @@ const WorkflowManagement = () => {
         <div>
             <Card bodyStyle={{ padding: '16px' }}>
                 <div className="flex justify-between items-center mb-2">
-                    <h1 className="text-xl font-bold m-0">Quản Lý Workflow</h1>
+                    <h1 className="text-xl font-bold m-0">Quản Lý quy trình</h1>
                     <Space>
                         <Tooltip title={showAdvancedSearch ? "Ẩn tìm kiếm nâng cao" : "Hiện tìm kiếm nâng cao"}>
                             <Button

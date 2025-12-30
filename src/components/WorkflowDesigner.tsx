@@ -468,8 +468,8 @@ const WorkflowDesigner = forwardRef<WorkflowDesignerHandle, WorkflowDesignerProp
             >
               <Select
                 options={[
-                  { value: 'yes', label: 'Có' },
-                  { value: 'no', label: 'Không' }
+                  { value: 'yes', label: 'Duyệt' },
+                  { value: 'no', label: 'Từ chối' }
                 ]}
               />
             </Form.Item>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, Button, Space, Tag, Card, Modal, Tooltip, Input, Select, message, DatePicker } from 'antd';
+import { Table, Button, Space, Tag, Card, Modal, Tooltip, Input, Select } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { 
   ReloadOutlined, 
@@ -9,10 +9,6 @@ import {
   PlusOutlined, 
   SearchOutlined, 
   FilterOutlined,
-  SendOutlined,
-  CheckOutlined,
-  CloseOutlined,
-  StopOutlined,
   EyeOutlined
 } from '@ant-design/icons';
 import type { PurchaseRequisition, PurchaseListRequest } from '@/types/purchasing';
@@ -21,7 +17,6 @@ import enumData from '@/enums/enums';
 import dayjs from 'dayjs';
 
 const { Search } = Input;
-const { RangePicker } = DatePicker;
 
 const PurchaseRequisitionManagement = () => {
   const navigate = useNavigate();
@@ -91,7 +86,6 @@ const PurchaseRequisitionManagement = () => {
         try {
           const result = await purchaseRequisitionService.delete(record.id);
           if (result.success) {
-            message.success('Xóa thành công');
             loadRequisitions();
           }
         } catch (err) {
@@ -101,99 +95,19 @@ const PurchaseRequisitionManagement = () => {
     });
   };
 
-  const handleSubmit = (record: PurchaseRequisition) => {
-    Modal.confirm({
-      title: 'Gửi Phê Duyệt',
-      content: `Bạn có chắc chắn muốn gửi yêu cầu "${record.requisitionCode}" để phê duyệt?`,
-      okText: 'Xác Nhận',
-      cancelText: 'Hủy',
-      onOk: async () => {
-        try {
-          const result = await purchaseRequisitionService.submit(record.id);
-          if (result.success) {
-            message.success('Đã gửi phê duyệt');
-            loadRequisitions();
-          }
-        } catch (err) {
-          // Error handled by interceptor
-        }
-      },
-    });
-  };
 
-  const handleApprove = (record: PurchaseRequisition) => {
-    Modal.confirm({
-      title: 'Phê Duyệt',
-      content: `Bạn có chắc chắn muốn phê duyệt yêu cầu "${record.requisitionCode}"?`,
-      okText: 'Phê Duyệt',
-      cancelText: 'Hủy',
-      onOk: async () => {
-        try {
-          const result = await purchaseRequisitionService.approve(record.id);
-          if (result.success) {
-            message.success('Đã phê duyệt');
-            loadRequisitions();
-          }
-        } catch (err) {
-          // Error handled by interceptor
-        }
-      },
-    });
-  };
 
-  const handleReject = (record: PurchaseRequisition) => {
-    Modal.confirm({
-      title: 'Từ Chối',
-      content: `Bạn có chắc chắn muốn từ chối yêu cầu "${record.requisitionCode}"?`,
-      okText: 'Từ Chối',
-      okType: 'danger',
-      cancelText: 'Hủy',
-      onOk: async () => {
-        try {
-          const result = await purchaseRequisitionService.reject(record.id);
-          if (result.success) {
-            message.success('Đã từ chối');
-            loadRequisitions();
-          }
-        } catch (err) {
-          // Error handled by interceptor
-        }
-      },
-    });
-  };
-
-  const handleCancel = (record: PurchaseRequisition) => {
-    Modal.confirm({
-      title: 'Hủy Yêu Cầu',
-      content: `Bạn có chắc chắn muốn hủy yêu cầu "${record.requisitionCode}"?`,
-      okText: 'Hủy Yêu Cầu',
-      okType: 'danger',
-      cancelText: 'Đóng',
-      onOk: async () => {
-        try {
-          const result = await purchaseRequisitionService.cancel(record.id);
-          if (result.success) {
-            message.success('Đã hủy yêu cầu');
-            loadRequisitions();
-          }
-        } catch (err) {
-          // Error handled by interceptor
-        }
-      },
-    });
-  };
-
-  const getStatusColor = (status: number) => {
-    switch (status) {
-      case 1: return 'default'; // DRAFT
-      case 2: return 'processing'; // PENDING_APPROVAL
-      case 3: return 'success'; // APPROVED
-      case 4: return 'error'; // REJECTED
-      case 5: return 'purple'; // CONVERTED
-      case -1: return 'default'; // CANCELLED
-      default: return 'default';
-    }
-  };
+  // const getStatusColor = (status: number) => {
+  //   switch (status) {
+  //     case 1: return 'default'; // DRAFT
+  //     case 2: return 'processing'; // PENDING_APPROVAL
+  //     case 3: return 'success'; // APPROVED
+  //     case 4: return 'error'; // REJECTED
+  //     case 5: return 'purple'; // CONVERTED
+  //     case -1: return 'default'; // CANCELLED
+  //     default: return 'default';
+  //   }
+  // };
 
   const getPriorityColor = (priority: number) => {
     switch (priority) {
@@ -248,18 +162,41 @@ const PurchaseRequisitionManagement = () => {
         );
       },
     },
+    // {
+    //   title: 'Trạng Thái',
+    //   dataIndex: 'status',
+    //   key: 'status',
+    //   width: 130,
+    //   render: (status: number) => {
+    //     const statusItem = enumData.purchaseRequisitionStatus?.get(status);
+    //     return (
+    //       <Tag color={getStatusColor(status)}>
+    //         {statusItem?.text || 'Không xác định'}
+    //       </Tag>
+    //     );
+    //   },
+    // },
     {
-      title: 'Trạng Thái',
-      dataIndex: 'status',
-      key: 'status',
+      title: 'Bước Hiện Tại',
+      dataIndex: 'workflowStepName',
+      key: 'workflowStepName',
       width: 130,
-      render: (status: number) => {
-        const statusItem = enumData.purchaseRequisitionStatus?.get(status);
-        return (
-          <Tag color={getStatusColor(status)}>
-            {statusItem?.text || 'Không xác định'}
-          </Tag>
-        );
+      render: (stepName: string, record: PurchaseRequisition) => {
+        const step = record.workflowStep;
+        if (!step) return <Tag>-</Tag>;
+        if (step === 'StartEvent_Begin') return <Tag color="blue">Bắt đầu</Tag>;
+        if (step === 'EndEvent_Completed') return <Tag color="green">Hoàn thành</Tag>;
+        return <Tag color="processing">{stepName || step}</Tag>;
+      },
+    },
+    {
+      title: 'Quyền Thực Hiện',
+      dataIndex: 'requiredPolicies',
+      key: 'requiredPolicies',
+      width: 150,
+      render: (text: string, record: PurchaseRequisition) => {
+        if (record.workflowStep === 'EndEvent_Completed') return '-';
+        return text || '-';
       },
     },
     {
@@ -272,19 +209,10 @@ const PurchaseRequisitionManagement = () => {
     {
       title: 'Thao Tác',
       key: 'actions',
-      width: 200,
+      width: 150,
       fixed: 'right',
       render: (_, record) => (
         <Space size="small">
-          <Tooltip title="Xem Chi Tiết">
-            <Button
-              icon={<EyeOutlined />}
-              size="small"
-              onClick={() => handleView(record)}
-            />
-          </Tooltip>
-          
-          {/* DRAFT: Can edit, delete, submit */}
           {record.status === 1 && (
             <>
               <Tooltip title="Chỉnh Sửa">
@@ -293,15 +221,6 @@ const PurchaseRequisitionManagement = () => {
                   icon={<EditOutlined />}
                   size="small"
                   onClick={() => handleEdit(record)}
-                />
-              </Tooltip>
-              <Tooltip title="Gửi Phê Duyệt">
-                <Button
-                  type="primary"
-                  icon={<SendOutlined />}
-                  size="small"
-                  style={{ background: '#52c41a' }}
-                  onClick={() => handleSubmit(record)}
                 />
               </Tooltip>
               <Tooltip title="Xóa">
@@ -314,40 +233,15 @@ const PurchaseRequisitionManagement = () => {
               </Tooltip>
             </>
           )}
-
-          {/* PENDING_APPROVAL: Can approve, reject */}
-          {record.status === 2 && (
-            <>
-              <Tooltip title="Phê Duyệt">
-                <Button
-                  type="primary"
-                  icon={<CheckOutlined />}
-                  size="small"
-                  style={{ background: '#52c41a' }}
-                  onClick={() => handleApprove(record)}
-                />
-              </Tooltip>
-              <Tooltip title="Từ Chối">
-                <Button
-                  danger
-                  icon={<CloseOutlined />}
-                  size="small"
-                  onClick={() => handleReject(record)}
-                />
-              </Tooltip>
-            </>
-          )}
-
-          {/* APPROVED, PENDING: Can cancel */}
-          {(record.status === 2 || record.status === 3) && (
-            <Tooltip title="Hủy">
+          
+          {/* Đã gửi phê duyệt hoặc đã duyệt: Chỉ xem chi tiết */}
+            <Tooltip title="Xem Chi Tiết">
               <Button
-                icon={<StopOutlined />}
+                icon={<EyeOutlined />}
                 size="small"
-                onClick={() => handleCancel(record)}
+                onClick={() => handleView(record)}
               />
             </Tooltip>
-          )}
         </Space>
       ),
     },

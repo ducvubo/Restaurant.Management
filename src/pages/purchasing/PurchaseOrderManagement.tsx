@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, Button, Space, Tag, Card, Modal, Tooltip, Input, Select, message, Progress } from 'antd';
+import { Table, Button, Space, Tag, Card, Modal, Tooltip, Input, Select,  Progress } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { 
   ReloadOutlined, 
@@ -93,7 +93,6 @@ const PurchaseOrderManagement = () => {
         try {
           const result = await purchaseOrderService.delete(record.id);
           if (result.success) {
-            message.success('Xóa thành công');
             loadOrders();
           }
         } catch (err) {
@@ -113,7 +112,6 @@ const PurchaseOrderManagement = () => {
         try {
           const result = await purchaseOrderService.confirm(record.id);
           if (result.success) {
-            message.success('Đã xác nhận đơn hàng');
             loadOrders();
           }
         } catch (err) {
@@ -134,7 +132,6 @@ const PurchaseOrderManagement = () => {
         try {
           const result = await purchaseOrderService.cancel(record.id);
           if (result.success) {
-            message.success('Đã hủy đơn hàng');
             loadOrders();
           }
         } catch (err) {

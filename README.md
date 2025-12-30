@@ -1,5 +1,5 @@
 # Restaurant Management Frontend
-
+npx -y openapi-typescript http://localhost:14000/api-docs -o src/types/api-generated.ts
 Frontend application for Restaurant Management System built with React, Vite, and TypeScript.
 
 ## Tech Stack

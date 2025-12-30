@@ -21,6 +21,11 @@ export interface PurchaseRequisition {
   approvedDate?: string;
   rejectionReason?: string;
   totalEstimatedAmount?: number;
+  // Workflow fields
+  workflowId?: string;
+  workflowStep?: string;
+  workflowStepName?: string;
+  requiredPolicies?: string;
   createdBy?: string;
   updatedBy?: string;
   createdDate?: string;
@@ -225,3 +230,66 @@ export interface PageResponse<T> {
   total: number;
   totalPages: number;
 }
+
+// =============================================
+// Workflow Types
+// =============================================
+
+export interface WorkflowStateDTO {
+  currentStepId: string | null;
+  currentStepName: string;
+  currentStepType: string;
+  isEndStep: boolean;
+  isComplete: boolean;
+  availableActions: WorkflowActionOption[];
+}
+
+export interface WorkflowActionOption {
+  actionKey: string;
+  actionName: string;
+  targetStepId: string;
+}
+
+export interface WorkflowActionRequest {
+  actionKey: string;
+  comment?: string;
+}
+
+export interface WorkflowActivityDTO {
+  id: string;
+  stepId: string;
+  stepName: string;
+  content: string;
+  actionDate: string;
+  userId: string;
+  userName?: string;
+}
+
+// =============================================
+// Workflow Note Types
+// =============================================
+
+export interface WorkflowNoteDTO {
+  id: string;
+  referenceId: string;
+  workflowType: number;
+  stepId?: string;
+  stepName?: string;
+  content: string;
+  userId: string;
+  userName?: string;
+  createdDate: string;
+  updatedDate?: string;
+  canEdit: boolean;
+  canDelete: boolean;
+}
+
+export interface WorkflowNoteRequest {
+  referenceId: string;
+  workflowType: number;
+  stepId?: string;
+  stepName?: string;
+  content: string;
+}
+
+

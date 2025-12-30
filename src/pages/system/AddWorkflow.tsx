@@ -45,6 +45,13 @@ const AddWorkflow = () => {
             // Get BPMN XML from designer
             const bpmnXml = await designerRef.current.getWorkflowXml();
 
+            // DEBUG: Log values
+            console.log('=== DEBUG WORKFLOW ===');
+            console.log('Form values:', values);
+            console.log('workflowType from form:', values.workflowType);
+            console.log('WORKFLOW_TYPE_OPTIONS:', WORKFLOW_TYPE_OPTIONS);
+            console.log('=== END DEBUG ===');
+
             // Server will validate BPMN and extract policies automatically
             const request: CreateWorkflowRequest = {
                 workflowType: values.workflowType,
@@ -69,7 +76,7 @@ const AddWorkflow = () => {
         <div>
             <Card bodyStyle={{ padding: '16px' }}>
                 <div className="flex items-center justify-between mb-2">
-                    <h1 className="text-xl font-bold m-0">Tạo Workflow Mới</h1>
+                    <h1 className="text-xl font-bold m-0">Tạo quy trình Mới</h1>
                     <Space>
                         <Button onClick={() => navigate('/workflows')}>
                             Hủy

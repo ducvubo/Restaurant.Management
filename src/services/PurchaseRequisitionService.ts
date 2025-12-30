@@ -4,7 +4,10 @@ import type {
   PurchaseRequisition, 
   PurchaseRequisitionRequest, 
   PurchaseListRequest, 
-  PageResponse 
+  PageResponse,
+  WorkflowStateDTO,
+  WorkflowActionRequest,
+  WorkflowActivityDTO
 } from '../types/purchasing';
 import type { ResultMessage } from '../types';
 
@@ -84,4 +87,34 @@ export const purchaseRequisitionService = {
     );
     return response.data;
   },
+  
+  // ===== Workflow Methods =====
+  
+  // Lấy trạng thái workflow hiện tại
+  getWorkflowState: async (id: string): Promise<WorkflowStateDTO> => {
+    const response = await Api.get<ResultMessage<WorkflowStateDTO>>(
+      API_ENDPOINTS.PURCHASE_REQUISITION.WORKFLOW_STATE,
+      { params: { id } }
+    );
+    return response.data.result;
+  },
+  
+  // Thực hiện action trong workflow
+  performWorkflowAction: async (id: string, request: WorkflowActionRequest): Promise<ResultMessage<PurchaseRequisition>> => {
+    const response = await Api.post<ResultMessage<PurchaseRequisition>>(
+      `${API_ENDPOINTS.PURCHASE_REQUISITION.WORKFLOW_ACTION}?id=${id}`,
+      request
+    );
+    return response.data;
+  },
+  
+  // Lấy lịch sử thao tác
+  getHistory: async (id: string): Promise<WorkflowActivityDTO[]> => {
+    const response = await Api.get<ResultMessage<WorkflowActivityDTO[]>>(
+      API_ENDPOINTS.PURCHASE_REQUISITION.HISTORY,
+      { params: { id } }
+    );
+    return response.data.result;
+  },
 };
+
